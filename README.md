@@ -13,7 +13,10 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 
 <h2>Screenshots (WORK IN PROGRESS)</h2>
 <h3>07.02.2021</h3>
+
 ![Image 0](pic0.png)
+
 </br>
 <h3>08.02.2021</h3>
+
 ![Image 1](pic1.png)
