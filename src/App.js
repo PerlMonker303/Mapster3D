@@ -5,20 +5,21 @@ import "./App.scss";
 import HUD from './HUD/HUD';
 import Ground from './Ground/Ground';
 import Building from './Building/Building';
+import {saveFile} from './Management/Save';
 
 import {OrbitControls} from "@react-three/drei";
 import {useSpring, a} from "react-spring/three";
 import {tile_mappings_textures_codes} from './Mappings/MappingCodes';
+import {buildings_levels_codes} from './Mappings/MappingBuildings';
 
 // TO DO: 
-// - save/load map
+// - play with lightning
 // - create a road in 3D - with sidewalk and everything
 // - add moving rotating clouds
-// - different building heights
+// - add water tiles + logic
 
 // BUGS:
-// - buildings are built multiple times
-// - there was a bug when creating multiple roads and zones, then clicking build
+// - fix raytracing issue
 // - tile has more priority than color
 
 
@@ -47,18 +48,23 @@ class App extends Component {
     const m = 30;
     this.state = {
       mapSize: [n,m],
-      selected_building_type: 'none',
+      selected_option_type: 'none',
       tileMapTextures: Array(n).fill().map(()=>Array(m).fill(0)),
       tileMapZones: Array(n).fill().map(()=>Array(m).fill(0)),
       gridShow: false,
       buildingCoordinates: [],
       builtBuildings: Array(n).fill().map(()=>Array(m).fill(0)),
-      isBuilding: false
+      buildingKeys: {},
+      buildingKeysList: [],
+      buildingKeysCurrent: 0,
+      buildings: {},
+      loaded: false,
+      canLoad: true
     }
   }
 
-  changeSelectedBuildingType = (newType) => {
-    this.setState({selected_building_type: newType})
+  changeSelectedOptionType = (newType) => {
+    this.setState({selected_option_type: newType})
   }
 
   setTileMapTexture = ([x, y], value, tile_mappings_textures) => {
@@ -86,6 +92,10 @@ class App extends Component {
       // NOT USED - we want buildings wider than 1xn
       //return;
     }
+    if(this.state.builtBuildings[x][y] === 1){
+      // restriction of not zoning over a building
+      return;
+    }
     let newTileMapZones = this.state.tileMapZones;
     newTileMapZones[x][y] = value;
     this.setState({tileMapZones: newTileMapZones})
@@ -97,7 +107,13 @@ class App extends Component {
       builtBuildings[x][y] = 0;
       buildingCoordinates = buildingCoordinates.filter(coord => (coord[0] === x && coord[1] === y));
       this.setState({builtBuildings: builtBuildings, buildingCoordinates: buildingCoordinates});
-
+    }else{
+      // start building
+      this.startBuilding([x,y,value]);
+      this.setState({canLoad: false});
+      setTimeout(() => {
+          this.setState({canLoad: true});
+      }, 5000);
     }
   }
 
@@ -224,24 +240,27 @@ class App extends Component {
     }
   }
 
-  startBuilding = () => {
-    this.setState({isBuilding: true}, () => {
-      console.log("[BUILDING COMMENCED]");
-    });
+  startBuilding = ([x,y,type]) => {
+    let currentBuiltBuildings = this.state.builtBuildings;
+    let currentBuildingCoordinates = this.state.buildingCoordinates;
+    let currentBuildingKeys = this.state.buildingKeys;
+    let currentBuildingKeysList = this.state.buildingKeysList;
+    let currentBuildings = this.state.buildings;
     
-    let currentBuildingCoordinates = this.getZonesCoordinates();
-    let oldBuildingCoordinates = this.state.buildingCoordinates;
-    let newBuildingCoordinates = currentBuildingCoordinates.filter(c => !oldBuildingCoordinates.includes(c));
-    let allBuildingCoordinates = [...currentBuildingCoordinates,...oldBuildingCoordinates];
-    let set = new Set(allBuildingCoordinates.map(JSON.stringify));
-    allBuildingCoordinates = Array.from(set).map(JSON.parse);
-    this.setState({buildingCoordinates: allBuildingCoordinates}, () => {
-      //this.updateBuiltBuildings(newBuildingCoordinates, 1);
-    });
-    this.updateBuiltBuildings(newBuildingCoordinates, 1);
-
-    this.setState({isBuilding: false}, () => {
-      console.log("[BUILDING STOPPED]");
+    currentBuiltBuildings[x][y] = 1;
+    currentBuildingCoordinates.push([x,y,type]);
+    currentBuildingKeys[this.state.buildingKeysCurrent] = [x,y,type];
+    currentBuildingKeysList.push(this.state.buildingKeysCurrent);
+    currentBuildings[this.state.buildingKeysCurrent] = {
+      'level': 1
+    };
+    this.setState({
+      builtBuildings: currentBuiltBuildings, 
+      buildingCoordinates: currentBuildingCoordinates,
+      buildingKeys: currentBuildingKeys,
+      buildingKeysCurrent: this.state.buildingKeysCurrent + 1,
+      buildingKeysList: currentBuildingKeysList,
+      buildings: currentBuildings
     });
   }
 
@@ -261,17 +280,97 @@ class App extends Component {
   updateBuiltBuildings = (buildingCoordinates, value) => {
     let builtBuildings = [...this.state.builtBuildings];
     buildingCoordinates.map((pair) => {
-      console.log("UPDATED TO ", value);
-      builtBuildings[pair[0]][pair[2]] = value;
+      //console.log("UPDATED TO ", value);
+      //builtBuildings[pair[0]][pair[2]] = value;
     });
     this.setState({builtBuildings: builtBuildings});
   }
 
-  destroyBuilding = (buildingCoordinates) => {
-    this.updateBuiltBuildings([buildingCoordinates], 0);
-    let oldBuildingCoordinates = this.state.buildingCoordinates;
-    const newBuildingCoordinates = oldBuildingCoordinates.filter(coords => !(buildingCoordinates[0] === coords[0] && buildingCoordinates[2] === coords[1]));
-    this.setState({buildingCoordinates: newBuildingCoordinates});
+  getKeyForCoordinates = (coordinates) => {
+    let currentBuildingKeys = this.state.buildingKeys; // dictionary
+    const keys = Object.keys(currentBuildingKeys).map(key => parseInt(key));
+    const thisKey = keys.find(key => (currentBuildingKeys[key][0] === coordinates[0] 
+      && currentBuildingKeys[key][1] === coordinates[1]
+      && currentBuildingKeys[key][2] === coordinates[2]));
+
+    return thisKey;
+  }
+
+  clickHandlerBuilding = (buildingCoordinates) => {
+    const thisKey = this.getKeyForCoordinates(buildingCoordinates);
+
+    if(this.state.selected_option_type === 'buldoze'){
+      // destroy it
+      let currentBuiltBuildings = this.state.builtBuildings;
+      let currentBuildingKeys = this.state.buildingKeys; // dictionary
+      let currentBuildingKeysList = this.state.buildingKeysList; // list
+      let currentTileMapZones = this.state.tileMapZones; // zones
+
+      if(currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] === 0){
+        return;
+      }
+
+      currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+      delete currentBuildingKeys[thisKey];
+      currentBuildingKeysList = currentBuildingKeysList.filter(key => key !== thisKey);
+      currentTileMapZones[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+
+      this.setState({
+        builtBuildings: currentBuiltBuildings,
+        buildingKeys: currentBuildingKeys,
+        buildingKeysList: currentBuildingKeysList,
+        tileMapZones: currentTileMapZones
+      });
+    }else if(this.state.selected_option_type === 'upgrade'){
+      // level up the building
+      let currentBuildings = this.state.buildings;
+
+      currentBuildings[thisKey] = {
+        'level': currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5
+      };
+
+      this.setState({
+        buildings: currentBuildings
+      });
+    }else if(this.state.selected_option_type === 'downgrade'){
+      // level down the building
+      let currentBuildings = this.state.buildings;
+
+      currentBuildings[thisKey] = {
+        'level': currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1
+      };
+
+      this.setState({
+        buildings: currentBuildings
+      });
+    }
+  }
+
+  saveFileApp = () => {
+    // pass the data you want to be persisstent
+    const data = JSON.stringify(this.state);
+    saveFile(data);
+  }
+
+  loadFileApp = (event) => {
+    if(this.state.canLoad){
+      const data = JSON.parse(localStorage.getItem("save"));
+      if(data === null){
+        console.log("Error: no saves could be found.");
+        return;
+      }
+      this.setState(data);
+      this.setState({loaded: true});
+      setTimeout(() => {
+          this.setState({loaded: false});
+      }, 500);
+    }else{
+      console.log("Error: too early to load. Try again later.");
+    }
+  }
+
+  updateCanLoad = (value) => {
+    //this.setState({canLoad: value});
   }
   
   render(){
@@ -279,14 +378,15 @@ class App extends Component {
     <>
       <HUD 
         changeGridShow={this.changeGridShow}
-        changeSelectedBuildingType={this.changeSelectedBuildingType}
-        startBuilding={this.startBuilding}
+        changeSelectedOptionType={this.changeSelectedOptionType}
+        saveFile={this.saveFileApp}
+        loadFile={this.loadFileApp}
       />
       <Canvas shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
         <ambientLight intensity={0.3} />
         <directionalLight
           castShadow
-          position={[0,20,0]}
+          position={[0,10,0]}
           intensity={0.5}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
@@ -296,8 +396,8 @@ class App extends Component {
           shadow-camera-top={10}
           shadow-camera-bottom={-10}
         />
-        <pointLight position={[-10,10,-20]} intensity={0.5}/>
-        <pointLight position={[0,0,0]} intensity={1.5}/>
+        
+        <pointLight position={[5,5,5]} intensity={0.5}/>
 
         <Ground 
           state={this.state} 
@@ -306,30 +406,37 @@ class App extends Component {
           position={[0,0,0]} 
           size={this.state.mapSize}/>
 
-
         <SpinningMesh position={[-2,12,-5]} color="pink" />
         <SpinningMesh position={[5,12,-2]} color="pink" />
         <SpinningMesh position={[-9,12,-4]} color="pink" />
         <SpinningMesh position={[3,11,2]} color="pink" />
 
-        {this.state.buildingCoordinates.map((pair, i) => 
-            <Building 
-              key={i} 
-              position={[pair[0],0,pair[1]]}
-              size={[1,3,1]} 
-              mapSize={this.state.mapSize}
-              type={pair[2]}
-              builtBuildings={this.state.builtBuildings}
-              updateBuiltBuildings={this.updateBuiltBuildings}
-              destroyBuilding={this.destroyBuilding}
-              isBuilt={this.state.builtBuildings[pair[0]][pair[1]] === 1 ? true : false}
-            />
+        {this.state.buildingKeysList.map((key, i) => 
+        {
+          const pair = this.state.buildingKeys[key];
+          const level = this.state.buildings[key]['level'];
+          const height = buildings_levels_codes[level]['height'];
+          if(pair){
+            return(
+              <Building 
+                key={key}
+                position={[pair[0],0,pair[1]]}
+                size={[1,height,1]}
+                mapSize={this.state.mapSize}
+                type={pair[2]}
+                clickHandlerBuilding={this.clickHandlerBuilding}
+                level={this.state.buildings[key]['level']}
+                loaded={this.state.loaded}
+              />
+            )
+          }
+          }
           )
         }
 
         <OrbitControls 
           minDistance={10} 
-          maxDistance={25} 
+          maxDistance={35} 
           maxPolarAngle={1.3}
           keyPanSpeed={1}
         />

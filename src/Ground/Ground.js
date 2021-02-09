@@ -24,7 +24,7 @@ const Ground = ({state, setTileMapTexture, setTileMapZone, position, size}) => {
         {
           pairs.map((pair, i) =>
             <Tile 
-              type={state.selected_building_type} 
+              type={state.selected_option_type} 
               key={pair} 
               position={[pair[0],1,pair[1]]} 
               tileMapZones={state.tileMapZones} 
