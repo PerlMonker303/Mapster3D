@@ -2,11 +2,12 @@ import React from 'react';
 
 import './HUD.scss';
 
-const HUD = ({changeGridShow, changeSelectedOptionType, saveFile, loadFile}) => {
+const HUD = ({changeGridShow, changeTexturesShow, changeSelectedOptionType, saveFile, loadFile}) => {
     return (
         <div className='HUD'>
             <label className='HUD_button' onClick={() => changeSelectedOptionType('menu')}>Menu</label>
             <label className='HUD_button' onClick={() => changeGridShow()}>Grid</label>
+            <label className='HUD_button' onClick={() => changeTexturesShow()}>Textures</label>
             <label className='HUD_button' onClick={() => changeSelectedOptionType('road')}>Road</label>
             <label className='HUD_button' onClick={() => changeSelectedOptionType('residential')}>Residential</label>
             <label className='HUD_button' onClick={() => changeSelectedOptionType('commercial')}>Commercial</label>

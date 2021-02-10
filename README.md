@@ -18,15 +18,10 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 
 ![Image 0](pic0.png)
 
-</br>
 <h3>08.02.2021</h3>
 
 ![Image 1](pic1.png)
-<<<<<<< HEAD
-=======
 
-</br>
 <h3>09.02.2021</h3>
 
 ![Image 2](pic2.png)
->>>>>>> More features

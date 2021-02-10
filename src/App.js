@@ -1,5 +1,5 @@
-import React, {useRef, useState, Component} from "react";
-import {Canvas, useFrame} from "react-three-fiber";
+import React, {useRef, useState, Component, Suspense} from "react";
+import {Canvas, useFrame, useLoader} from "react-three-fiber";
 import * as THREE from 'three';
 import "./App.scss";
 import HUD from './HUD/HUD';
@@ -10,18 +10,16 @@ import {saveFile} from './Management/Save';
 import {OrbitControls} from "@react-three/drei";
 import {useSpring, a} from "react-spring/three";
 import {tile_mappings_textures_codes} from './Mappings/MappingCodes';
-import {buildings_levels_codes} from './Mappings/MappingBuildings';
+import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 
 // TO DO: 
-// - play with lightning
-// - create a road in 3D - with sidewalk and everything
 // - add moving rotating clouds
+// - add more sprites
+// - create a road in 3D - with sidewalk and everything
 // - add water tiles + logic
 
 // BUGS:
 // - fix raytracing issue
-// - tile has more priority than color
-
 
 const SpinningMesh = ({position, size, color}) => {
   const mesh = useRef(null);
@@ -44,14 +42,15 @@ const SpinningMesh = ({position, size, color}) => {
 class App extends Component {
   constructor(props) {
     super(props);
-    const n = 30;
-    const m = 30;
+    const n = 10;
+    const m = 10;
     this.state = {
       mapSize: [n,m],
       selected_option_type: 'none',
       tileMapTextures: Array(n).fill().map(()=>Array(m).fill(0)),
       tileMapZones: Array(n).fill().map(()=>Array(m).fill(0)),
       gridShow: false,
+      texturesShow: true,
       buildingCoordinates: [],
       builtBuildings: Array(n).fill().map(()=>Array(m).fill(0)),
       buildingKeys: {},
@@ -119,6 +118,10 @@ class App extends Component {
 
   changeGridShow = () => {
     this.setState({gridShow: !this.state.gridShow});
+  }
+
+  changeTexturesShow = () => {
+    this.setState({texturesShow: !this.state.texturesShow});
   }
 
   neighborIsRoad = ([x,y]) => {
@@ -208,6 +211,7 @@ class App extends Component {
         newTileMapTextures[x][y] = newValue;
         this.setState({tileMapTextures: newTileMapTextures})
       }
+      this.changeOrientationOfNeighbouringBuildings([x,y],'add');
     }else if(value === 0){
       // removing a road
       if(left) {
@@ -222,6 +226,7 @@ class App extends Component {
       if(bottom) {
         this.updateTexturesEnv([x, y+1], 1, tile_mappings_textures, true);
       }
+      this.changeOrientationOfNeighbouringBuildings([x,y],'remove');
     }
     // change neighbouring textures
     if(neighbour === false){
@@ -252,7 +257,8 @@ class App extends Component {
     currentBuildingKeys[this.state.buildingKeysCurrent] = [x,y,type];
     currentBuildingKeysList.push(this.state.buildingKeysCurrent);
     currentBuildings[this.state.buildingKeysCurrent] = {
-      'level': 1
+      'level': 1,
+      'orientation': this.checkNearbyRoadDirection([x,y])
     };
     this.setState({
       builtBuildings: currentBuiltBuildings, 
@@ -261,6 +267,8 @@ class App extends Component {
       buildingKeysCurrent: this.state.buildingKeysCurrent + 1,
       buildingKeysList: currentBuildingKeysList,
       buildings: currentBuildings
+    }, () => {
+      console.log(this.state.buildings);
     });
   }
 
@@ -290,8 +298,7 @@ class App extends Component {
     let currentBuildingKeys = this.state.buildingKeys; // dictionary
     const keys = Object.keys(currentBuildingKeys).map(key => parseInt(key));
     const thisKey = keys.find(key => (currentBuildingKeys[key][0] === coordinates[0] 
-      && currentBuildingKeys[key][1] === coordinates[1]
-      && currentBuildingKeys[key][2] === coordinates[2]));
+      && currentBuildingKeys[key][1] === coordinates[1]));
 
     return thisKey;
   }
@@ -326,7 +333,8 @@ class App extends Component {
       let currentBuildings = this.state.buildings;
 
       currentBuildings[thisKey] = {
-        'level': currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5
+        'level': currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5,
+        'orientation': currentBuildings[thisKey]['orientation']
       };
 
       this.setState({
@@ -337,7 +345,8 @@ class App extends Component {
       let currentBuildings = this.state.buildings;
 
       currentBuildings[thisKey] = {
-        'level': currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1
+        'level': currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1,
+        'orientation': currentBuildings[thisKey]['orientation']
       };
 
       this.setState({
@@ -372,22 +381,69 @@ class App extends Component {
   updateCanLoad = (value) => {
     //this.setState({canLoad: value});
   }
+
+  checkNearbyRoadDirection = ([x,y]) => {
+    let result = 0;
+    if(x < this.state.tileMapZones.length-1 && this.state.tileMapTextures[x+1][y] > 0 && this.state.tileMapTextures[x+1][y] <= 11){
+      result = 0; // in front of building
+    }
+    else if(y > 0 && this.state.tileMapTextures[x][y-1] > 0 && this.state.tileMapTextures[x][y-1] <= 11){
+      result = 1; // right
+    }
+    else if(x > 0 && this.state.tileMapTextures[x-1][y] > 0 && this.state.tileMapTextures[x-1][y] <= 11){
+      result = 2; // behind building
+    }
+    else if(y < this.state.tileMapZones[0].length-1 && this.state.tileMapTextures[x][y+1] > 0 && this.state.tileMapTextures[x][y+1] <= 11){
+      result = 3; // left
+    }
+    return result;
+  }
+
+  changeOrientationOfNeighbouringBuildings = ([x,y], typeRoadOperation = null) => {
+    let neighbours = [];
+    if(x < this.state.tileMapZones.length-1 && this.state.tileMapZones[x+1][y] === 1){
+      neighbours.push([x+1,y]);
+    }
+    if(y > 0 && this.state.tileMapZones[x][y-1] === 1){
+      neighbours.push([x,y-1]);
+    }
+    if(x > 0 && this.state.tileMapZones[x-1][y] === 1){
+      neighbours.push([x-1,y]);
+    }
+    if(y < this.state.tileMapZones[0].length-1 && this.state.tileMapZones[x][y+1] === 1){
+      neighbours.push([x,y+1]);
+    }
+    neighbours.map(neighbour => {
+      // update neighbours orientation
+      const key = this.getKeyForCoordinates(neighbour);
+      const orientation = this.checkNearbyRoadDirection(neighbour);
+      let currentBuildings = this.state.buildings;
+      if((typeRoadOperation === 'add' && orientation !== 0) || typeRoadOperation === 'remove'){
+        currentBuildings[key] = {
+          'level': currentBuildings[key]['level'],
+          'orientation': orientation
+        };
+      }
+      this.setState({buildings: currentBuildings});
+    })
+  }
   
   render(){
   return (
     <>
       <HUD 
         changeGridShow={this.changeGridShow}
+        changeTexturesShow={this.changeTexturesShow}
         changeSelectedOptionType={this.changeSelectedOptionType}
         saveFile={this.saveFileApp}
         loadFile={this.loadFileApp}
       />
       <Canvas shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
-        <ambientLight intensity={0.3} />
+        <ambientLight intensity={0.15} />
         <directionalLight
           castShadow
-          position={[0,10,0]}
-          intensity={0.5}
+          position={[0,20,0]}
+          intensity={0}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
           shadow-camera-far={50}
@@ -397,10 +453,10 @@ class App extends Component {
           shadow-camera-bottom={-10}
         />
         
-        <pointLight position={[5,5,5]} intensity={0.5}/>
+        <spotLight position={[16,10,16]} intensity={0.8}/>
 
         <Ground 
-          state={this.state} 
+          state={this.state}
           setTileMapTexture={this.setTileMapTexture}
           setTileMapZone={this.setTileMapZone}
           position={[0,0,0]} 
@@ -411,11 +467,13 @@ class App extends Component {
         <SpinningMesh position={[-9,12,-4]} color="pink" />
         <SpinningMesh position={[3,11,2]} color="pink" />
 
+        <Suspense fallback={null}>
         {this.state.buildingKeysList.map((key, i) => 
         {
           const pair = this.state.buildingKeys[key];
           const level = this.state.buildings[key]['level'];
           const height = buildings_levels_codes[level]['height'];
+          const orientation = this.state.buildings[key]['orientation'];
           if(pair){
             return(
               <Building 
@@ -427,12 +485,21 @@ class App extends Component {
                 clickHandlerBuilding={this.clickHandlerBuilding}
                 level={this.state.buildings[key]['level']}
                 loaded={this.state.loaded}
+                texturesShow={this.state.texturesShow}
+                textures={
+                  buildings_textures_codes[pair[2]][level]
+                }
+                defaultTexture={
+                  buildings_textures_codes[pair[2]][0]
+                }
+                orientation={orientation}
               />
             )
           }
           }
           )
         }
+        </Suspense>
 
         <OrbitControls 
           minDistance={10} 

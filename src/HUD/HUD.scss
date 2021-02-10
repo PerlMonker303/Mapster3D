@@ -5,6 +5,7 @@
 .HUD_button{
     display: inline-block;
     padding: 5px 10px;
+    user-select: none;
 }
 
 .HUD_button:hover{
