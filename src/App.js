@@ -1,10 +1,11 @@
-import React, {useRef, useState, Component, Suspense} from "react";
+import React, {Component, Suspense} from "react";
 import {Canvas, useFrame, useLoader} from "react-three-fiber";
 import * as THREE from 'three';
 import "./App.scss";
 import HUD from './HUD/HUD';
 import Ground from './Ground/Ground';
 import Building from './Building/Building';
+import Sky from './Sky/Sky.js';
 import {saveFile} from './Management/Save';
 
 import {OrbitControls} from "@react-three/drei";
@@ -13,37 +14,20 @@ import {tile_mappings_textures_codes} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 
 // TO DO: 
-// - add moving rotating clouds
+// - add water tiles + logic
 // - add more sprites
 // - create a road in 3D - with sidewalk and everything
-// - add water tiles + logic
 
 // BUGS:
+// - fix clouds
+// - map size must be odd numbers
 // - fix raytracing issue
-
-const SpinningMesh = ({position, size, color}) => {
-  const mesh = useRef(null);
-  useFrame(() => {mesh.current.rotation.x = mesh.current.rotation.y += 0.01});
-
-  const [expand, setExpand] = useState(false);
-
-  const props = useSpring({
-    scale: expand ? [1.4,1.4,1.4] : [1,1,1]
-  })
-
-  return (
-    <a.mesh onClick={() => setExpand(!expand)} scale={props.scale} castShadow position={position} ref={mesh}>
-      <boxBufferGeometry attach='geometry' args={size} />
-      <meshStandardMaterial attach='material' color={color}/>
-    </a.mesh>
-  )
-}
 
 class App extends Component {
   constructor(props) {
     super(props);
-    const n = 10;
-    const m = 10;
+    const n = 30;
+    const m = 30;
     this.state = {
       mapSize: [n,m],
       selected_option_type: 'none',
@@ -401,16 +385,16 @@ class App extends Component {
 
   changeOrientationOfNeighbouringBuildings = ([x,y], typeRoadOperation = null) => {
     let neighbours = [];
-    if(x < this.state.tileMapZones.length-1 && this.state.tileMapZones[x+1][y] === 1){
+    if(x < this.state.tileMapZones.length-1 && this.state.tileMapZones[x+1][y] >= 1 && this.state.tileMapZones[x+1][y] <= 3){
       neighbours.push([x+1,y]);
     }
-    if(y > 0 && this.state.tileMapZones[x][y-1] === 1){
+    if(y > 0 && this.state.tileMapZones[x][y-1] >= 1 && this.state.tileMapZones[x][y-1] <= 3){
       neighbours.push([x,y-1]);
     }
-    if(x > 0 && this.state.tileMapZones[x-1][y] === 1){
+    if(x > 0 && this.state.tileMapZones[x-1][y] >= 1 && this.state.tileMapZones[x-1][y] <= 3){
       neighbours.push([x-1,y]);
     }
-    if(y < this.state.tileMapZones[0].length-1 && this.state.tileMapZones[x][y+1] === 1){
+    if(y < this.state.tileMapZones[0].length-1 && this.state.tileMapZones[x][y+1] >= 1 && this.state.tileMapZones[x][y+1] <= 3){
       neighbours.push([x,y+1]);
     }
     neighbours.map(neighbour => {
@@ -462,10 +446,7 @@ class App extends Component {
           position={[0,0,0]} 
           size={this.state.mapSize}/>
 
-        <SpinningMesh position={[-2,12,-5]} color="pink" />
-        <SpinningMesh position={[5,12,-2]} color="pink" />
-        <SpinningMesh position={[-9,12,-4]} color="pink" />
-        <SpinningMesh position={[3,11,2]} color="pink" />
+        <Sky mapSize={this.state.mapSize} levelBoundaries={[10,15]} cloudsCount={10}/>
 
         <Suspense fallback={null}>
         {this.state.buildingKeysList.map((key, i) => 
@@ -503,7 +484,7 @@ class App extends Component {
 
         <OrbitControls 
           minDistance={10} 
-          maxDistance={35} 
+          maxDistance={30} 
           maxPolarAngle={1.3}
           keyPanSpeed={1}
         />
