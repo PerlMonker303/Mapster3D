@@ -28,4 +28,6 @@ export const tile_mappings_textures_codes = {
     'road9': 9,
     'road10': 10,
     'road11': 11,
+    'water': 12,
+    'shore': 13
 }

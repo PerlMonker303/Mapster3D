@@ -1,5 +1,9 @@
+$marginCanvasLeft: 8vw;
+
+
 * {
   box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 html, body, #root {
@@ -12,4 +16,14 @@ html, body, #root {
 body{
   background-color: #f1fAf8;
   position: fixed;
+}
+
+Canvas {
+  background-color: #e0f7fc;
+}
+
+.CanvasWrapper{
+  margin-left: $marginCanvasLeft;
+  width: 92vw;
+  height: 100%;
 }

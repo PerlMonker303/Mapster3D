@@ -60,7 +60,7 @@ const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, l
                     mesh.current.scale.y = 0;
                     mesh.current.position.y = 0;
                 }
-            }, 1000);
+            }, 2000);
         }else{
             if(!isBuilt){
                 

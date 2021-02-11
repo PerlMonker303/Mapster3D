@@ -14,11 +14,12 @@ import {tile_mappings_textures_codes} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 
 // TO DO: 
-// - add water tiles + logic
-// - add more sprites
+// - add economy
+// - add more sprites (levels 3,4,5)
 // - create a road in 3D - with sidewalk and everything
 
 // BUGS:
+// - load save and orient buildings
 // - fix clouds
 // - map size must be odd numbers
 // - fix raytracing issue
@@ -42,7 +43,8 @@ class App extends Component {
       buildingKeysCurrent: 0,
       buildings: {},
       loaded: false,
-      canLoad: true
+      canLoad: true,
+      funds: 10000
     }
   }
 
@@ -68,6 +70,10 @@ class App extends Component {
   setTileMapZone = ([x, y], value) => {
     if(this.state.tileMapTextures[x][y] > 0 && this.state.tileMapTextures[x][y] <= 11){
       // restriction of not zoning on a road
+      return;
+    }
+    else if(this.state.tileMapTextures[x][y] === 12){
+      // restriction of not zoning on water
       return;
     }
     if(!this.neighborIsRoad([x,y])){
@@ -252,7 +258,7 @@ class App extends Component {
       buildingKeysList: currentBuildingKeysList,
       buildings: currentBuildings
     }, () => {
-      console.log(this.state.buildings);
+      
     });
   }
 
@@ -345,7 +351,7 @@ class App extends Component {
     saveFile(data);
   }
 
-  loadFileApp = (event) => {
+  loadFileApp = () => {
     if(this.state.canLoad){
       const data = JSON.parse(localStorage.getItem("save"));
       if(data === null){
@@ -354,16 +360,15 @@ class App extends Component {
       }
       this.setState(data);
       this.setState({loaded: true});
+      data.buildingCoordinates.map(bc => {
+        this.changeOrientationOfNeighbouringBuildings([bc],'add');
+      })
       setTimeout(() => {
           this.setState({loaded: false});
-      }, 500);
+      }, 1500);
     }else{
       console.log("Error: too early to load. Try again later.");
     }
-  }
-
-  updateCanLoad = (value) => {
-    //this.setState({canLoad: value});
   }
 
   checkNearbyRoadDirection = ([x,y]) => {
@@ -416,12 +421,14 @@ class App extends Component {
   return (
     <>
       <HUD 
-        changeGridShow={this.changeGridShow}
-        changeTexturesShow={this.changeTexturesShow}
-        changeSelectedOptionType={this.changeSelectedOptionType}
-        saveFile={this.saveFileApp}
-        loadFile={this.loadFileApp}
-      />
+          changeGridShow={this.changeGridShow}
+          changeTexturesShow={this.changeTexturesShow}
+          changeSelectedOptionType={this.changeSelectedOptionType}
+          saveFile={this.saveFileApp}
+          loadFile={this.loadFileApp}
+          information={{title: 'default', text: 'default from App.js'}}
+        />
+      <div className="CanvasWrapper">
       <Canvas shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
         <ambientLight intensity={0.15} />
         <directionalLight
@@ -446,7 +453,8 @@ class App extends Component {
           position={[0,0,0]} 
           size={this.state.mapSize}/>
 
-        <Sky mapSize={this.state.mapSize} levelBoundaries={[10,15]} cloudsCount={10}/>
+        {//<Sky mapSize={this.state.mapSize} levelBoundaries={[10,15]} cloudsCount={10}/>
+        }
 
         <Suspense fallback={null}>
         {this.state.buildingKeysList.map((key, i) => 
@@ -489,6 +497,7 @@ class App extends Component {
           keyPanSpeed={1}
         />
       </Canvas>
+      </div>
     </>
   )
   }
