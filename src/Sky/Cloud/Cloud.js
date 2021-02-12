@@ -15,12 +15,12 @@ const Cloud = ({mapSize, level, size, color, speed}) => {
     const randy = Math.random()*mapSize[1] - mapSize[1];
     const position = [randx,level,randy]
   
-    const props = useSpring({
+    const spring = useSpring({
       scale: expand ? [1.4,1.4,1.4] : [1,1,1]
     })
   
     return (
-      <a.mesh onClick={() => setExpand(!expand)} scale={props.scale} castShadow position={position} ref={mesh}>
+      <a.mesh onClick={() => setExpand(!expand)} scale={spring.scale} castShadow position={position} ref={mesh}>
         <boxBufferGeometry attach='geometry' args={size} />
         <meshStandardMaterial attach='material' color={color}/>
       </a.mesh>

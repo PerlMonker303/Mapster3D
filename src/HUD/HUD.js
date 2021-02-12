@@ -1,9 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 
 import icon_select from '../assets/icons/icon_select.png';
 import icon_grid from '../assets/icons/icon_grid.png';
 import icon_texture from '../assets/icons/icon_texture.png';
+import icon_buildings_on from '../assets/icons/icon_buildings_on.png';
+import icon_buildings_off from '../assets/icons/icon_buildings_off.png';
 import icon_road from '../assets/icons/icon_road.png';
+import icon_pipe from '../assets/icons/icon_pipe.png';
 import icon_water from '../assets/icons/icon_water.png';
 import icon_shore from '../assets/icons/icon_shore.png';
 import icon_residential from '../assets/icons/icon_residential.png';
@@ -20,14 +23,32 @@ import {information_mappings_zones_codes} from '../Mappings/MappingInformation';
 
 import './HUD.scss';
 
-const HUD = ({changeGridShow, changeTexturesShow, changeSelectedOptionType, saveFile, loadFile, information}) => {
-    const title = information.title;
-    const text = information.text;
+const HUD = ({changeGridShow, changeTexturesShow, changeBuildingsShow, getBuildingsShow, changeSelectedOptionType, saveFile, loadFile, incrementDate, date, loadingBarProgress}) => {
+    
     const defaultTitle = 'Information area';
     const defaultInformation = '';
     const [currentTitle, setCurrentTitle] = useState(defaultTitle);
     const [currentInformation, setCurrentInformation] = useState(defaultInformation);
-    
+    const [progress, setProgress] = useState(0);
+    const [reload, setReload] = useState(true);
+    const incrementInterval = 1000; // every second
+
+    useEffect(() => {
+        let interval = null;
+        if (reload) {
+          interval = setInterval(() => {
+            setProgress(prog => prog + 10);
+            if(progress >= 100){
+                setProgress(0);
+                incrementDate();
+            }
+          }, incrementInterval);
+        } else if (!reload && progress < 100) {
+            clearInterval(interval);
+            setProgress(0);
+        }
+        return () => clearInterval(interval);
+      }, [reload, progress]);
 
     const iconMouseEnter = (icon) => {
         setCurrentTitle(information_mappings_zones_codes[icon].title);
@@ -50,6 +71,8 @@ const HUD = ({changeGridShow, changeTexturesShow, changeSelectedOptionType, save
                     >
                         <img className='HUD_icon' src={icon_select} alt='icon_select'/>
                     </section>
+                </section>
+                <section className='HUD_section'>
                     <section className='HUD_button' onClick={() => changeGridShow()}
                         onMouseEnter={() => iconMouseEnter('grid')} 
                         onMouseLeave={() => iconMouseLeave('grid')}
@@ -62,6 +85,14 @@ const HUD = ({changeGridShow, changeTexturesShow, changeSelectedOptionType, save
                     >
                         <img className='HUD_icon' src={icon_texture} alt='icon_texture'/>
                     </section>
+                    <section className='HUD_button' onClick={() => {
+                        changeBuildingsShow();
+                        iconMouseEnter(!getBuildingsShow() ? 'buildings_on' : 'buildings_off')}}
+                        onMouseEnter={() => iconMouseEnter(getBuildingsShow() ? 'buildings_on' : 'buildings_off')} 
+                        onMouseLeave={() => iconMouseLeave(getBuildingsShow() ? 'buildings_on' : 'buildings_off')}
+                    >
+                        <img className='HUD_icon' src={getBuildingsShow() ? icon_buildings_on : icon_buildings_off} alt='icon_buildings_onoff'/>
+                    </section>
                 </section>
                 <section className='HUD_section'>
                     <section className='HUD_button' onClick={() => changeSelectedOptionType('road')}
@@ -70,6 +101,14 @@ const HUD = ({changeGridShow, changeTexturesShow, changeSelectedOptionType, save
                     >
                         <img className='HUD_icon' src={icon_road} alt='icon_road'/>
                     </section>
+                    <section className='HUD_button' onClick={() => changeSelectedOptionType('pipe')}
+                        onMouseEnter={() => iconMouseEnter('pipe')} 
+                        onMouseLeave={() => iconMouseLeave('pipe')}
+                    >
+                        <img className='HUD_icon' src={icon_pipe} alt='icon_pipe'/>
+                    </section>
+                </section>
+                <section className='HUD_section'>
                     <section className='HUD_button' onClick={() => changeSelectedOptionType('water')}
                         onMouseEnter={() => iconMouseEnter('water')} 
                         onMouseLeave={() => iconMouseLeave('water')}
@@ -155,6 +194,20 @@ const HUD = ({changeGridShow, changeTexturesShow, changeSelectedOptionType, save
                     <label>Funds: </label>
                     <label>100000</label>
                 </section>
+                <section className='HUD_top_section'>
+                    <label>Date: </label>
+                    <label>{date.day < 10 ? '0' : ''}{date.day}.{date.month < 10 ? '0' : ''}{date.month}.{date.year}</label>
+                </section>
+                <div className='HUD_loading_bar'>
+                    <div style={{
+                        'width': progress,
+                        'height': '100%',
+                        'backgroundColor': 'green',
+                        'position': 'relative'
+                    }
+                    }>
+                    </div>
+                </div>
             </section>
             
         </div>

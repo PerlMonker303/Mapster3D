@@ -5,7 +5,7 @@ import {tile_mappings_zones} from '../Mappings/MappingCodes';
 import {buildings_levels_codes} from '../Mappings/MappingBuildings';
 import * as THREE from 'three';
 
-const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, loaded, texturesShow, textures, defaultTexture, orientation}) => {
+const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, loaded, texturesShow, textures, defaultTexture, orientation, buildingsShow, sewageMode}) => {
     // position - based on matrices
     const mesh = useRef(null);
     const initial_position = [...position];
@@ -82,7 +82,7 @@ const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, l
     
     return (
         <group>
-        {!isPreBuild ?
+        {!isPreBuild && buildingsShow && !sewageMode ?
                 <a.mesh 
                     castShadow 
                     position={

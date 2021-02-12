@@ -19,8 +19,9 @@ import TextureRoad10 from '../assets/roads/Road10.png';
 import TextureRoad11 from '../assets/roads/Road11.png';
 import TextureWater1 from '../assets/water/Water1.png';
 import TextureShore1 from '../assets/shore/Shore1.png';
+import TextureDirt1 from '../assets/dirt/Dirt1.png';
 
-const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture, setTileMapZone}) => {
+const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture, setTileMapZone, setTileMapObject, selected_option_type, sewageMode}) => {
     const size = [1,1];
     const actual_position = position.map(pos => pos - 0.5);
     actual_position[1] = 0.001;
@@ -39,6 +40,7 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
     const textureRoad11 = useLoader(THREE.TextureLoader, TextureRoad11);
     const textureWater1 = useLoader(THREE.TextureLoader, TextureWater1);
     const textureShore1 = useLoader(THREE.TextureLoader, TextureShore1);
+    const textureDirt1 = useLoader(THREE.TextureLoader, TextureDirt1);
 
     const tile_mappings_textures = {
         0: textureGrass1,
@@ -54,7 +56,8 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
         10: textureRoad10,
         11: textureRoad11,
         12: textureWater1,
-        13: textureShore1
+        13: textureShore1,
+        14: textureDirt1
     }
 
     let rows = tileMapZones.length;
@@ -69,6 +72,8 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
                     setTileMapZone([position_row, position_col], tile_mappings_zones_codes[type]);
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], tile_mappings_textures_codes[type], tile_mappings_textures);
+                }else if(selected_option_type === 'pipe'){
+                    setTileMapObject([position_row, position_col]);
                 }
             
             }} receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={actual_position}
@@ -77,12 +82,14 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
                     setTileMapZone([position_row, position_col], 0);
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], 0);
+                }else if(selected_option_type === 'pipe'){
+                    setTileMapObject([position_row, position_col], 0);
                 }
             }}
             >
                 <planeBufferGeometry attach='geometry' args={size}/>
                 <meshStandardMaterial 
-                    map={tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
+                    map={sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
                     color={tile_mappings_zones[tileMapZones[position_row][position_col]]}
                 />

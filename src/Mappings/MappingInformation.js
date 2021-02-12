@@ -12,9 +12,21 @@ export const information_mappings_zones_codes = {
         title: 'Textures',
         information: 'Switch the textures on/off'
     },
+    'buildings_on': {
+        title: 'Buildings',
+        information: 'Hide buildings'
+    },
+    'buildings_off': {
+        title: 'Buildings',
+        information: 'Show buildings'
+    },
     'road': {
         title: 'Road',
         information: 'Place two-lane roads (left-click to place, right-click to remove)'
+    },
+    'pipe': {
+        title: 'Pipe',
+        information: 'Place pipes to build a sewage system for your city'
     },
     'water': {
         title: 'Water',

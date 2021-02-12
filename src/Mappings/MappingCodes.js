@@ -1,6 +1,6 @@
 
 export const tile_mappings_zones_codes = {
-    'none': 0,
+    'select': 0,
     'residential': 1,
     'commercial': 2,
     'industry': 3,
@@ -29,5 +29,6 @@ export const tile_mappings_textures_codes = {
     'road10': 10,
     'road11': 11,
     'water': 12,
-    'shore': 13
+    'shore': 13,
+    'dirt': 14
 }

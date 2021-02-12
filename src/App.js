@@ -1,5 +1,5 @@
 import React, {Component, Suspense} from "react";
-import {Canvas, useFrame, useLoader} from "react-three-fiber";
+import {Canvas} from "react-three-fiber";
 import * as THREE from 'three';
 import "./App.scss";
 import HUD from './HUD/HUD';
@@ -9,11 +9,11 @@ import Sky from './Sky/Sky.js';
 import {saveFile} from './Management/Save';
 
 import {OrbitControls} from "@react-three/drei";
-import {useSpring, a} from "react-spring/three";
 import {tile_mappings_textures_codes} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 
 // TO DO: 
+// - add the concept of time
 // - add economy
 // - add more sprites (levels 3,4,5)
 // - create a road in 3D - with sidewalk and everything
@@ -29,27 +29,64 @@ class App extends Component {
     super(props);
     const n = 30;
     const m = 30;
+    const today = new Date();
     this.state = {
       mapSize: [n,m],
       selected_option_type: 'none',
       tileMapTextures: Array(n).fill().map(()=>Array(m).fill(0)),
       tileMapZones: Array(n).fill().map(()=>Array(m).fill(0)),
+      tileMapObjects: Array(n).fill().map(()=>Array(m).fill(0)),
       gridShow: false,
       texturesShow: true,
+      buildingsShow: true,
       buildingCoordinates: [],
       builtBuildings: Array(n).fill().map(()=>Array(m).fill(0)),
       buildingKeys: {},
       buildingKeysList: [],
       buildingKeysCurrent: 0,
       buildings: {},
+      pipesCoordinates: [],
       loaded: false,
       canLoad: true,
-      funds: 10000
+      funds: 10000,
+      sweageMode: false,
+      date: {
+        year: today.getFullYear(),
+        month: today.getMonth() + 1,
+        day: today.getDate()
+      }
     }
+  }
+
+  incrementDate = () => {
+    let currentYear = this.state.date.year;
+    let currentMonth = this.state.date.month;
+    let currentDay = this.state.date.day;
+    
+    currentDay += 1;
+    if(currentDay === 30){
+      currentDay = 1;
+      currentMonth += 1;
+      if(currentMonth === 12){
+        currentMonth = 1;
+        currentYear += 1;
+      }
+    }
+
+    this.setState({date: {
+      year: currentYear,
+      month: currentMonth,
+      day: currentDay
+    }})
   }
 
   changeSelectedOptionType = (newType) => {
     this.setState({selected_option_type: newType})
+    if(newType === 'pipe'){
+      this.setState({sewageMode: true});
+    }else if(this.state.sewageMode === true){
+      this.setState({sewageMode: false});
+    }
   }
 
   setTileMapTexture = ([x, y], value, tile_mappings_textures) => {
@@ -106,6 +143,17 @@ class App extends Component {
     }
   }
 
+  setTileMapObject = ([x,y], value = -1) => {
+    let currentPipesCoordinates = this.state.pipesCoordinates;
+
+    currentPipesCoordinates.push([x,y]);
+    this.updateObjectsEnv([x,y],value,'pipe');
+
+    this.setState({
+      pipesCoordinates: currentPipesCoordinates
+    });
+  }
+
   changeGridShow = () => {
     this.setState({gridShow: !this.state.gridShow});
   }
@@ -133,6 +181,112 @@ class App extends Component {
     return result;
   }
 
+  updateObjectsEnv = ([x, y], value, type, neighbour = false) => {
+    let left = false;
+    let right = false;
+    let top = false;
+    let bottom = false;
+    // left
+    if(x > 0 && this.state.tileMapObjects[x-1][y] > 0 && this.state.tileMapObjects[x-1][y] <= 11){
+      left = true;
+    }
+    if(y > 0 && this.state.tileMapObjects[x][y-1] > 0 && this.state.tileMapObjects[x][y-1] <= 11){
+      top = true;
+    }
+    if(x < this.state.tileMapObjects.length-1 && this.state.tileMapObjects[x+1][y] > 0 && this.state.tileMapObjects[x+1][y] <= 11){
+      right = true;
+    }
+    if(y < this.state.tileMapObjects[0].length-1 && this.state.tileMapObjects[x][y+1] > 0 && this.state.tileMapObjects[x][y+1] <= 11){
+      bottom = true;
+    }
+    
+    if(type === 'pipe'){
+      if(value === -1){
+        // add pipe
+        let newValue = 1;
+        // change current textures
+        if(left && right && top && bottom){
+          // 4 way - Pipe 11
+          newValue = 11;
+        }else if (left && right && top){
+          // 3 way - Pipe 8
+          newValue = 8;
+        }else if(left && right && bottom){
+          // 3 way - Pipe 10
+          newValue = 10;
+        }else if(left && top && bottom){
+          // 3 way - Pipe 9
+          newValue = 9;
+        }else if(right && top && bottom){
+          // 3 way - Pipe 7
+          newValue = 7;
+        }else if(left && right){
+          // corner - Pipe 2
+          newValue = 2;
+        }else if(top && bottom){
+          // corner - Pipe 1
+          newValue = 1;
+        }else if(top && left){
+          // corner - Pipe 6
+          newValue = 6;
+        }else if(top && right){
+          // corner - Pipe 5
+          newValue = 5;
+        }else if(bottom && left){
+          // 2 way - Pipe 4
+          newValue = 4;
+        }else if(bottom && right){
+          // 2 way - Pipe 3
+          newValue = 3;
+        }else if(top || bottom){
+          // 2 way - Pipe 1
+          newValue = 1;
+        }else if(left || right){
+          // 2 way - Pipe 2
+          newValue = 2;
+        }
+        let newTileMapObjects = this.state.tileMapObjects;
+        newTileMapObjects[x][y] = newValue;
+        this.setState({tileMapObjects: newTileMapObjects})
+
+        // change neighbouring objects
+      }else if(value === 0){
+        // remove pipe
+        let newTileMapObjects = this.state.tileMapObjects;
+        newTileMapObjects[x][y] = 0;
+        this.setState({tileMapObjects: newTileMapObjects})
+        if(left) {
+          this.updateObjectsEnv([x-1, y], -1, type, true);
+        }
+        if(right) {
+          this.updateObjectsEnv([x+1, y], -1, type, true);
+        }
+        if(top) {
+          this.updateObjectsEnv([x, y-1], -1, type, true);
+        }
+        if(bottom) {
+          this.updateObjectsEnv([x, y+1], -1, type, true);
+        }
+      }
+
+      // modify neighbours
+      if(neighbour === false){
+        if(left) {
+          this.updateObjectsEnv([x-1, y], -1, type, true);
+        }
+        if(right) {
+          this.updateObjectsEnv([x+1, y], -1, type, true);
+        }
+        if(top) {
+          this.updateObjectsEnv([x, y-1], -1, type, true);
+        }
+        if(bottom) {
+          this.updateObjectsEnv([x, y+1], -1, type, true);
+        }
+      }
+    }
+  }
+
   updateTexturesEnv = ([x, y], value, tile_mappings_textures, neighbour = false) => {
     let left = false;
     let right = false;
@@ -157,37 +311,37 @@ class App extends Component {
       let newValue = 1;
       // change current textures
       if(left && right && top && bottom){
-        // 4 way - Road11
+        // 4 way - Road 11
         newValue = 11;
       }else if (left && right && top){
-        // 3 way - Road6
+        // 3 way - Road 6
         newValue = 6;
       }else if(left && right && bottom){
-        // 3 way - Road5
+        // 3 way - Road 5
         newValue = 5;
       }else if(left && top && bottom){
-        // 3 way - Road4
+        // 3 way - Road 4
         newValue = 4;
       }else if(right && top && bottom){
-        // 3 way - Road3
+        // 3 way - Road 3
         newValue = 3;
       }else if(left && right){
-        // 2 way - Road2
+        // 2 way - Road 2
         newValue = 2;
       }else if(top && bottom){
-        // 2 way - Road1
+        // 2 way - Road 1
         newValue = 1;
       }else if(top && left){
-        // 2 way - Road10
+        // 2 way - Road 10
         newValue = 10;
       }else if(top && right){
-        // 2 way - Road9
+        // 2 way - Road 9
         newValue = 9;
       }else if(bottom && left){
-        // 2 way - Road8
+        // 2 way - Road 8
         newValue = 8;
       }else if(bottom && right){
-        // 2 way - Road7
+        // 2 way - Road 7
         newValue = 7;
       }else if(top || bottom){
         // 2 way - Road 1
@@ -416,6 +570,10 @@ class App extends Component {
       this.setState({buildings: currentBuildings});
     })
   }
+
+  changeBuildingsShow = () => {
+    this.setState({buildingsShow: !this.state.buildingsShow});
+  }
   
   render(){
   return (
@@ -423,10 +581,13 @@ class App extends Component {
       <HUD 
           changeGridShow={this.changeGridShow}
           changeTexturesShow={this.changeTexturesShow}
+          changeBuildingsShow={this.changeBuildingsShow}
+          getBuildingsShow={() => this.state.buildingsShow}
           changeSelectedOptionType={this.changeSelectedOptionType}
           saveFile={this.saveFileApp}
           loadFile={this.loadFileApp}
-          information={{title: 'default', text: 'default from App.js'}}
+          incrementDate={this.incrementDate}
+          date={this.state.date}
         />
       <div className="CanvasWrapper">
       <Canvas shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
@@ -450,6 +611,7 @@ class App extends Component {
           state={this.state}
           setTileMapTexture={this.setTileMapTexture}
           setTileMapZone={this.setTileMapZone}
+          setTileMapObject={this.setTileMapObject}
           position={[0,0,0]} 
           size={this.state.mapSize}/>
 
@@ -482,6 +644,8 @@ class App extends Component {
                   buildings_textures_codes[pair[2]][0]
                 }
                 orientation={orientation}
+                buildingsShow={this.state.buildingsShow}
+                sewageMode={this.state.sewageMode}
               />
             )
           }

@@ -1,8 +1,9 @@
 import React, {Suspense} from 'react';
 import Grid from '../Grid/Grid';
 import Tile from '../Tile/Tile';
+import Pipe from './Pipes/Pipe';
 
-const Ground = ({state, setTileMapTexture, setTileMapZone, position, size}) => {
+const Ground = ({state, setTileMapTexture, setTileMapZone, setTileMapObject, position, size}) => {
 
     let [n, m] = size;
     let pairs = [];
@@ -31,7 +32,23 @@ const Ground = ({state, setTileMapTexture, setTileMapZone, position, size}) => {
               tileMapTextures={state.tileMapTextures} 
               setTileMapTexture={setTileMapTexture}
               setTileMapZone={setTileMapZone}
-              coordinates={pair}/>
+              setTileMapObject={setTileMapObject}
+              coordinates={pair}
+              selected_option_type={state.selected_option_type}
+              sewageMode={state.sewageMode}
+              />
+          )
+        }
+        {
+          state.pipesCoordinates.map((pair, i) => 
+            <Pipe 
+              key={i}
+              mapSize={state.mapSize}
+              position={[pair[0],1,pair[1]]}
+              size={[1,1,1]}
+              tileMapObjects={state.tileMapObjects}
+              sewageMode={state.sewageMode}
+            />
           )
         }
         </Suspense>
