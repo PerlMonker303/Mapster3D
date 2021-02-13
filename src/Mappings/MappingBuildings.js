@@ -35,19 +35,24 @@ import TextureIndL2Side2 from '../assets/buildings/b_ind_side_lvl2_2.png';
 
 export const buildings_levels_codes = {
     1: {
-        'height': 1
+        'height': 1,
+        'residents': 5
     },
     2: {
-        'height': 2
+        'height': 2,
+        'residents': 20
     },
     3: {
-        'height': 3
+        'height': 3,
+        'residents': 50
     },
     4: {
-        'height': 6
+        'height': 6,
+        'residents': 150
     },
     5: {
-        'height': 8
+        'height': 8,
+        'residents': 250
     }
 }
 

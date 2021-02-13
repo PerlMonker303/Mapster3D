@@ -9,11 +9,13 @@ import Sky from './Sky/Sky.js';
 import {saveFile} from './Management/Save';
 
 import {OrbitControls} from "@react-three/drei";
-import {tile_mappings_textures_codes} from './Mappings/MappingCodes';
+import {tile_mappings_textures_codes, tile_mappings_zones_codes_inverted} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
+import {prices_constructions} from './Mappings/MappingPrices';
 
 // TO DO: 
-// - add the concept of time
+// - preview upgrade/downgrade information
+// - change population/funds for upgrade/downgrades
 // - add economy
 // - add more sprites (levels 3,4,5)
 // - create a road in 3D - with sidewalk and everything
@@ -48,13 +50,17 @@ class App extends Component {
       pipesCoordinates: [],
       loaded: false,
       canLoad: true,
-      funds: 10000,
+      funds: 2000,
       sweageMode: false,
       date: {
         year: today.getFullYear(),
         month: today.getMonth() + 1,
         day: today.getDate()
-      }
+      },
+      isPaused: false,
+      currentBuildingSelected: null,
+      errorCode: null, // string with error name - check MappingInformation.js
+      population: 0
     }
   }
 
@@ -80,6 +86,23 @@ class App extends Component {
     }})
   }
 
+  increaseFunds = (value) => {
+    const currentFunds = this.state.funds;
+    this.setState({funds: currentFunds + value});
+  }
+
+  decreaseFunds = (value) => {
+    const currentFunds = this.state.funds;
+    this.setState({funds: currentFunds - value});
+  }
+
+  canBuy = (price) => {
+    if(this.state.funds >= price){
+      return true;
+    }
+    return false;
+  }
+
   changeSelectedOptionType = (newType) => {
     this.setState({selected_option_type: newType})
     if(newType === 'pipe'){
@@ -95,8 +118,14 @@ class App extends Component {
       // adding a road
       if(this.state.tileMapZones[x][y] !== 0){
         // deny road placement
-        return
+        return;
       }
+      if(!this.canBuy(prices_constructions['road'])){
+        // not enough funds to buy road
+        this.setState({errorCode: 'err_not_enough_funds'});
+        return;
+      }
+      this.decreaseFunds(prices_constructions['road']);
     }
     let newTileMapTextures = this.state.tileMapTextures;
     newTileMapTextures[x][y] = value;
@@ -122,6 +151,11 @@ class App extends Component {
       // restriction of not zoning over a building
       return;
     }
+    if(!this.canBuy(prices_constructions[tile_mappings_zones_codes_inverted[value]][1])){
+      // restriction of not building if not enough funds are available
+      this.setState({errorCode: 'err_not_enough_funds'})
+      return;
+    }
     let newTileMapZones = this.state.tileMapZones;
     newTileMapZones[x][y] = value;
     this.setState({tileMapZones: newTileMapZones})
@@ -144,6 +178,14 @@ class App extends Component {
   }
 
   setTileMapObject = ([x,y], value = -1) => {
+    if(value === -1){
+      if(!this.canBuy(prices_constructions['pipe'])){
+        // not enough funds to buy pipe
+        this.setState({errorCode: 'err_not_enough_funds'});
+        return;
+      }
+      this.decreaseFunds(prices_constructions['pipe']);
+    }
     let currentPipesCoordinates = this.state.pipesCoordinates;
 
     currentPipesCoordinates.push([x,y]);
@@ -395,24 +437,33 @@ class App extends Component {
     let currentBuildingKeys = this.state.buildingKeys;
     let currentBuildingKeysList = this.state.buildingKeysList;
     let currentBuildings = this.state.buildings;
+    let currentPopulation = this.state.population;
     
     currentBuiltBuildings[x][y] = 1;
     currentBuildingCoordinates.push([x,y,type]);
     currentBuildingKeys[this.state.buildingKeysCurrent] = [x,y,type];
     currentBuildingKeysList.push(this.state.buildingKeysCurrent);
     currentBuildings[this.state.buildingKeysCurrent] = {
+      'type': type,
       'level': 1,
-      'orientation': this.checkNearbyRoadDirection([x,y])
+      'orientation': this.checkNearbyRoadDirection([x,y]),
+      'price': prices_constructions[tile_mappings_zones_codes_inverted[type]][1],
+      'residents': buildings_levels_codes[1]['residents']
     };
+    currentPopulation += buildings_levels_codes[1]['residents'];
+    console.log(currentPopulation);
+    console.log(buildings_levels_codes[1]['residents']);
     this.setState({
       builtBuildings: currentBuiltBuildings, 
       buildingCoordinates: currentBuildingCoordinates,
       buildingKeys: currentBuildingKeys,
       buildingKeysCurrent: this.state.buildingKeysCurrent + 1,
       buildingKeysList: currentBuildingKeysList,
-      buildings: currentBuildings
+      buildings: currentBuildings,
+      population: currentPopulation
     }, () => {
-      
+      // pay the price
+      this.decreaseFunds(prices_constructions[tile_mappings_zones_codes_inverted[type]][1]);
     });
   }
 
@@ -449,8 +500,17 @@ class App extends Component {
 
   clickHandlerBuilding = (buildingCoordinates) => {
     const thisKey = this.getKeyForCoordinates(buildingCoordinates);
-
-    if(this.state.selected_option_type === 'buldoze'){
+    if(this.state.currentBuildingSelected !== null){
+      this.setState({currentBuildingSelected: null});
+    }
+    if(this.state.selected_option_type === 'select'){
+      //console.log(buildingCoordinates); // [0] [1]
+      const building = this.state.buildings[thisKey];
+      console.log(building);
+      this.setState({currentBuildingSelected: building});
+      
+    }
+    else if(this.state.selected_option_type === 'buldoze'){
       // destroy it
       let currentBuiltBuildings = this.state.builtBuildings;
       let currentBuildingKeys = this.state.buildingKeys; // dictionary
@@ -574,6 +634,18 @@ class App extends Component {
   changeBuildingsShow = () => {
     this.setState({buildingsShow: !this.state.buildingsShow});
   }
+
+  disableCurrentBuildingSelected = () => {
+    this.setState({currentBuildingSelected: null});
+  }
+
+  setIsPausedApp = (value) => {
+    this.setState({isPaused: value});
+  }
+
+  disableErrorCode = () => {
+    this.setState({errorCode: null});
+  }
   
   render(){
   return (
@@ -587,7 +659,15 @@ class App extends Component {
           saveFile={this.saveFileApp}
           loadFile={this.loadFileApp}
           incrementDate={this.incrementDate}
+          funds={this.state.funds}
           date={this.state.date}
+          isPaused={this.state.isPaused}
+          setIsPausedApp={(value) => this.setIsPausedApp(value)}
+          currentBuildingSelected={this.state.currentBuildingSelected}
+          disableCurrentBuildingSelected={this.disableCurrentBuildingSelected}
+          errorCode={this.state.errorCode}
+          disableErrorCode={this.disableErrorCode}
+          population={this.state.population}
         />
       <div className="CanvasWrapper">
       <Canvas shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
@@ -646,6 +726,7 @@ class App extends Component {
                 orientation={orientation}
                 buildingsShow={this.state.buildingsShow}
                 sewageMode={this.state.sewageMode}
+                isPaused={this.state.isPaused}
               />
             )
           }

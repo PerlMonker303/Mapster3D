@@ -10,7 +10,10 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 <li>Add zones to your roads (residential, commercial, industrial)</li>
 <li>Watch your buildings take to the skies</li>
 <li>Save and load your creations</li>
-<li>Upgrade buildings</li>
+<li>Upgrade or downgrade buildings</li>
+<li>Watch your population grow</li>
+<li>Manage your funds properly</li>
+<li>Stop or speed up the time</li>
 </ul>
 
 <h2>Screenshots (WORK IN PROGRESS)</h2>

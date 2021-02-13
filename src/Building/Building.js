@@ -5,7 +5,7 @@ import {tile_mappings_zones} from '../Mappings/MappingCodes';
 import {buildings_levels_codes} from '../Mappings/MappingBuildings';
 import * as THREE from 'three';
 
-const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, loaded, texturesShow, textures, defaultTexture, orientation, buildingsShow, sewageMode}) => {
+const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, loaded, texturesShow, textures, defaultTexture, orientation, buildingsShow, sewageMode, isPaused}) => {
     // position - based on matrices
     const mesh = useRef(null);
     const initial_position = [...position];
@@ -53,6 +53,9 @@ const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, l
     const actual_size = size.map(coord => coord - 0.00); // 0.01
     actual_size[1] = buildings_levels_codes[level]['height'];
     useFrame(() => {
+        if(isPaused){
+            return;
+        }
         if(isPreBuild){
             setTimeout(() => {
                 setPreBuild(false);

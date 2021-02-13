@@ -17,47 +17,122 @@ import icon_upgrade from '../assets/icons/icon_upgrade.png';
 import icon_downgrade from '../assets/icons/icon_downgrade.png';
 import icon_save from '../assets/icons/icon_save.png';
 import icon_load from '../assets/icons/icon_load.png';
+import icon_pause from '../assets/icons/icon_pause.png';
+import icon_play from '../assets/icons/icon_play.png';
+import icon_fast1 from '../assets/icons/icon_fast1.png';
+import icon_fast2 from '../assets/icons/icon_fast2.png';
 
 import {information_mappings_zones_codes} from '../Mappings/MappingInformation';
+import {tile_mappings_zones_codes_inverted} from '../Mappings/MappingCodes';
 
 
 import './HUD.scss';
 
-const HUD = ({changeGridShow, changeTexturesShow, changeBuildingsShow, getBuildingsShow, changeSelectedOptionType, saveFile, loadFile, incrementDate, date, loadingBarProgress}) => {
+const HUD = ({
+    changeGridShow,
+    changeTexturesShow,
+    changeBuildingsShow,
+    getBuildingsShow,
+    changeSelectedOptionType,
+    saveFile,
+    loadFile,
+    incrementDate,
+    funds,
+    date,
+    isPaused,
+    setIsPausedApp,
+    currentBuildingSelected,
+    disableCurrentBuildingSelected,
+    errorCode,
+    disableErrorCode,
+    population}) => {
     
     const defaultTitle = 'Information area';
-    const defaultInformation = '';
+    const defaultInformation = 'Hover over icons to learn more';
     const [currentTitle, setCurrentTitle] = useState(defaultTitle);
     const [currentInformation, setCurrentInformation] = useState(defaultInformation);
     const [progress, setProgress] = useState(0);
     const [reload, setReload] = useState(true);
-    const incrementInterval = 1000; // every second
+    const [paused, setPaused] = useState(isPaused);
+    const [timelapseMode, setTimelapseMode] = useState(0); // 0, 1, 2
+    //const [miliseconds, setMiliseconds] = useState(0);
+    const timeLapseModes = {
+        0: {
+            incrementInterval: 2000
+        },
+        1: {
+            incrementInterval: 1000
+        },
+        2: {
+            incrementInterval: 500
+        }
+    }
 
     useEffect(() => {
+        if(paused){
+            return;
+        }
         let interval = null;
         if (reload) {
           interval = setInterval(() => {
-            setProgress(prog => prog + 10);
+            if(!paused)
+                setProgress(prog => prog + 10);
             if(progress >= 100){
                 setProgress(0);
                 incrementDate();
             }
-          }, incrementInterval);
+          }, timeLapseModes[timelapseMode].incrementInterval);
         } else if (!reload && progress < 100) {
             clearInterval(interval);
             setProgress(0);
         }
         return () => clearInterval(interval);
-      }, [reload, progress]);
+    }, [reload, progress, paused]);
 
+    
     const iconMouseEnter = (icon) => {
+        if(currentBuildingSelected !== null){
+            disableCurrentBuildingSelected();
+        }
+        if(errorCode !== null){
+            disableErrorCode();
+        }
         setCurrentTitle(information_mappings_zones_codes[icon].title);
         setCurrentInformation(information_mappings_zones_codes[icon].information);
     }
 
     const iconMouseLeave = (icon) => {
+        if(currentBuildingSelected !== null){
+            disableCurrentBuildingSelected();
+        }
+        if(errorCode !== null){
+            disableErrorCode();
+        }
         setCurrentTitle(defaultTitle);
         setCurrentInformation(defaultInformation);
+    }
+
+    const pause = () => {
+        setPaused(true);
+        setIsPausedApp(true);
+    }
+
+    const play = () => {
+        setPaused(false);
+        setIsPausedApp(false);
+        setTimelapseMode(0);
+    }
+
+    const fast1 = () => {
+        setPaused(false);
+        setIsPausedApp(false);
+        setTimelapseMode(1);
+    }
+
+    const fast2 = () => {
+        setPaused(false);
+        setIsPausedApp(false);
+        setTimelapseMode(2);
     }
 
     return (
@@ -183,16 +258,30 @@ const HUD = ({changeGridShow, changeTexturesShow, changeBuildingsShow, getBuildi
                     </section>
                 </section>
 
-                <section className='HUD_footer'>
-                    <label>{currentTitle}</label>
-                    <p>{currentInformation}</p>
+                <section className={errorCode ? 'HUD_footer HUD_information_error' : 'HUD_footer'}>
+                    <label>{errorCode ? information_mappings_zones_codes[errorCode].title : 
+                    currentBuildingSelected === null ? currentTitle : 'Building'}</label>
+
+                    {errorCode ? (<p>{information_mappings_zones_codes[errorCode].information}</p>) :
+                    currentBuildingSelected === null ? (<p>{currentInformation}</p>) : (
+                            <div className='HUD_information'>
+                                <label className='HUD_information_label'>{tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].charAt(0).toUpperCase() + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].slice(1)}</label>
+                                <label className='HUD_information_label'>Level: {currentBuildingSelected['level']}</label>
+                                <label className='HUD_information_label'>Price: {currentBuildingSelected['price'].toString() + '$'}</label>
+                                {tile_mappings_zones_codes_inverted[currentBuildingSelected['type']] === 'residential' ? <label className='HUD_information_label'>Population: {currentBuildingSelected['residents']}</label>: null}
+                            </div>                        
+                    )}
                 </section>
             </section>
 
             <section className='HUD_top'>
                 <section className='HUD_top_section'>
                     <label>Funds: </label>
-                    <label>100000</label>
+                    <label>{funds}$</label>
+                </section>
+                <section className='HUD_top_section'>
+                    <label>Population: </label>
+                    <label>{population}</label>
                 </section>
                 <section className='HUD_top_section'>
                     <label>Date: </label>
@@ -208,6 +297,32 @@ const HUD = ({changeGridShow, changeTexturesShow, changeBuildingsShow, getBuildi
                     }>
                     </div>
                 </div>
+                <section className='HUD_top_section'>
+                    <section className='HUD_button' onClick={() => pause()}
+                        onMouseEnter={() => iconMouseEnter('pause')} 
+                        onMouseLeave={() => iconMouseLeave('pause')}
+                    >
+                        <img className='HUD_top_button' src={icon_pause} alt={'icon_pause'}/>
+                    </section>
+                    <section className='HUD_button' onClick={() => play()}
+                        onMouseEnter={() => iconMouseEnter('play')} 
+                        onMouseLeave={() => iconMouseLeave('play')}
+                    >
+                        <img className='HUD_top_button' src={icon_play} alt={'icon_play'}/>
+                    </section>
+                    <section className='HUD_button' onClick={() => fast1()}
+                        onMouseEnter={() => iconMouseEnter('fast1')} 
+                        onMouseLeave={() => iconMouseLeave('fast1')}
+                    >
+                        <img className='HUD_top_button' src={icon_fast1} alt='icon_fast1'/>
+                    </section>
+                    <section className='HUD_button' onClick={() => fast2()}
+                        onMouseEnter={() => iconMouseEnter('fast2')} 
+                        onMouseLeave={() => iconMouseLeave('fast2')}
+                    >
+                        <img className='HUD_top_button' src={icon_fast2} alt='icon_fast2'/>
+                    </section>
+                </section>
             </section>
             
         </div>

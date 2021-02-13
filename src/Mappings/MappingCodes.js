@@ -7,6 +7,14 @@ export const tile_mappings_zones_codes = {
     'buldoze': 4
 }
 
+export const tile_mappings_zones_codes_inverted = {
+    0: 'select',
+    1: 'residential',
+    2: 'commercial',
+    3: 'industry',
+    4: 'buldoze'
+}
+
 export const tile_mappings_zones = {
     0: 'white',
     1: 'lime',

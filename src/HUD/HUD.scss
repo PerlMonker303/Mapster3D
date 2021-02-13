@@ -21,6 +21,9 @@
     display: inline-flex;
     width: 100%;
     margin-left: $marginCanvasLeft;
+    border: 1px solid black;
+    border-left: none;
+    padding: 3px 0px;
 }
 
 .HUD_section{
@@ -50,9 +53,10 @@
 }
 
 .HUD_top_section{
-    padding: 2px 10px;
-    height: 100%;
+    padding: 0px 10px;
     width: 10vw;
+    height: 15px;
+    vertical-align: middle;
 }
 
 .HUD_top_section:hover{
@@ -81,12 +85,32 @@
 .HUD_loading_bar {
     background-color: red;
     width: 104px;
+    height: 2.6vh;
     border: 2px black solid;
 }
 
 .HUD_loading_bar_current {
     width: 100px;
-    height: 100%;
     background-color: green;
     position: relative;
+}
+
+.HUD_top_button{
+    width: 24px;
+    height: 24px;
+    border-width: 1px;
+    border-style: solid;
+    vertical-align: top;
+}
+
+.HUD_information {
+
+}
+
+.HUD_information_label {
+    display: block;
+}
+
+.HUD_information_error {
+    color: red;
 }
