@@ -5,7 +5,23 @@ import {tile_mappings_zones} from '../Mappings/MappingCodes';
 import {buildings_levels_codes} from '../Mappings/MappingBuildings';
 import * as THREE from 'three';
 
-const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, loaded, texturesShow, textures, defaultTexture, orientation, buildingsShow, sewageMode, isPaused}) => {
+const Building = ({
+    position,
+    size,
+    mapSize,
+    type,
+    clickHandlerBuilding,
+    level,
+    loaded,
+    texturesShow,
+    textures,
+    defaultTexture,
+    orientation,
+    buildingsShow,
+    sewageMode,
+    isPaused,
+    buildingHoverIn,
+    buildingHoverOut}) => {
     // position - based on matrices
     const mesh = useRef(null);
     const initial_position = [...position];
@@ -92,7 +108,9 @@ const Building = ({position, size, mapSize, type, clickHandlerBuilding, level, l
                         [position[0]-mapSize[0]/2 - size[0]/2 + 1, position[1]/2 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
                     } 
                     ref={mesh} // ORDER: FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT
-                    onClick={() => clickHandlerBuilding([initial_position[0],initial_position[2],type])}>
+                    onClick={(event) => clickHandlerBuilding(event, [initial_position[0],initial_position[2],type])}
+                    onPointerOver={(event) => buildingHoverIn(event, [initial_position[0],initial_position[2],type])}
+                    onPointerOut={(event) => buildingHoverOut(event)}>
                     <boxBufferGeometry attach='geometry' args={actual_size}/>
                     {textureArray.map((mat, i) => (
                         <meshPhongMaterial

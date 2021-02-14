@@ -22,8 +22,12 @@ Canvas {
   background-color: #e0f7fc;
 }
 
+.isPaused {
+  border: 2px solid red;
+}
+
 .CanvasWrapper{
   margin-left: $marginCanvasLeft;
-  width: 92vw;
-  height: 100%;
+  width: 92.2vw;
+  height: 96.5vh;
 }

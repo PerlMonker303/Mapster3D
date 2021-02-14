@@ -25,7 +25,7 @@ export const prices_constructions = {
     'pipe': 10
 }
 
-export const prices_expenses = {
+export const prices_expenses_and_revenues = {
     'residential': { // levels
         1: 5,
         2: 10,
@@ -34,17 +34,17 @@ export const prices_expenses = {
         5: 60
     },
     'commercial': {
-        1: 10,
-        2: 20,
-        3: 40,
-        4: 75,
-        5: 130
+        1: -10,
+        2: -20,
+        3: -40,
+        4: -75,
+        5: -130
     },
     'industry': {
-        1: 15,
-        2: 30,
-        3: 65,
-        4: 100,
-        5: 150
+        1: -15,
+        2: -30,
+        3: -65,
+        4: -100,
+        5: -150
     }
 }

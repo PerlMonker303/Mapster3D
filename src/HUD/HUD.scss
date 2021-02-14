@@ -50,6 +50,7 @@
 
 .HUD_button:hover{
     background-color: rgb(74, 255, 255);
+    cursor: pointer;
 }
 
 .HUD_top_section{
@@ -59,8 +60,11 @@
     vertical-align: middle;
 }
 
-.HUD_top_section:hover{
-    cursor: pointer;
+.HUD_top_section_prolonged{
+    padding: 0px 10px;
+    width: 15vw;
+    height: 15px;
+    vertical-align: middle;
 }
 
 .HUD_header{
@@ -75,6 +79,7 @@
     bottom: 0px;
     width: 100%;
     padding: 2px;
+    border-top: 1px solid black;
 }
 
 .HUD_footer > label{
@@ -83,16 +88,10 @@
 }
 
 .HUD_loading_bar {
-    background-color: red;
+    background-color: rgb(2, 133, 115);
     width: 104px;
     height: 2.6vh;
     border: 2px black solid;
-}
-
-.HUD_loading_bar_current {
-    width: 100px;
-    background-color: green;
-    position: relative;
 }
 
 .HUD_top_button{
@@ -112,5 +111,13 @@
 }
 
 .HUD_information_error {
+    color: red;
+}
+
+.HUD_positive_funds{
+    color: green
+}
+
+.HUD_negative_funds{
     color: red;
 }

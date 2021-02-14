@@ -11,12 +11,13 @@ import {saveFile} from './Management/Save';
 import {OrbitControls} from "@react-three/drei";
 import {tile_mappings_textures_codes, tile_mappings_zones_codes_inverted} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
-import {prices_constructions} from './Mappings/MappingPrices';
+import {prices_constructions, prices_expenses_and_revenues} from './Mappings/MappingPrices';
 
 // TO DO: 
-// - preview upgrade/downgrade information
-// - change population/funds for upgrade/downgrades
-// - add economy
+// - add trees
+// - happines/needs for residential areas (commercial, jobs from industry)
+// - show the needs through icons over buildings
+// - add parks that improve happiness
 // - add more sprites (levels 3,4,5)
 // - create a road in 3D - with sidewalk and everything
 
@@ -60,7 +61,10 @@ class App extends Component {
       isPaused: false,
       currentBuildingSelected: null,
       errorCode: null, // string with error name - check MappingInformation.js
-      population: 0
+      population: 0,
+      information: null,
+      expenses: 0,
+      revenues: 0
     }
   }
 
@@ -134,6 +138,10 @@ class App extends Component {
   }
 
   setTileMapZone = ([x, y], value) => {
+    if(value === 0){
+      // restriction of right click
+      return;
+    }
     if(this.state.tileMapTextures[x][y] > 0 && this.state.tileMapTextures[x][y] <= 11){
       // restriction of not zoning on a road
       return;
@@ -438,6 +446,8 @@ class App extends Component {
     let currentBuildingKeysList = this.state.buildingKeysList;
     let currentBuildings = this.state.buildings;
     let currentPopulation = this.state.population;
+    let currentExpenses = this.state.expenses;
+    let currentRevenues = this.state.revenues;
     
     currentBuiltBuildings[x][y] = 1;
     currentBuildingCoordinates.push([x,y,type]);
@@ -448,11 +458,16 @@ class App extends Component {
       'level': 1,
       'orientation': this.checkNearbyRoadDirection([x,y]),
       'price': prices_constructions[tile_mappings_zones_codes_inverted[type]][1],
-      'residents': buildings_levels_codes[1]['residents']
+      'residents': type === 1 ? buildings_levels_codes[1]['residents'] : 0
     };
-    currentPopulation += buildings_levels_codes[1]['residents'];
-    console.log(currentPopulation);
-    console.log(buildings_levels_codes[1]['residents']);
+    currentPopulation += (type === 1 ? buildings_levels_codes[1]['residents'] : 0);
+    const delta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[type]][1];
+    if(delta > 0){
+      currentRevenues += delta;
+    }else{
+      currentExpenses += delta;
+    }
+
     this.setState({
       builtBuildings: currentBuiltBuildings, 
       buildingCoordinates: currentBuildingCoordinates,
@@ -460,7 +475,9 @@ class App extends Component {
       buildingKeysCurrent: this.state.buildingKeysCurrent + 1,
       buildingKeysList: currentBuildingKeysList,
       buildings: currentBuildings,
-      population: currentPopulation
+      population: currentPopulation,
+      expenses: currentExpenses,
+      revenues: currentRevenues
     }, () => {
       // pay the price
       this.decreaseFunds(prices_constructions[tile_mappings_zones_codes_inverted[type]][1]);
@@ -498,7 +515,8 @@ class App extends Component {
     return thisKey;
   }
 
-  clickHandlerBuilding = (buildingCoordinates) => {
+  clickHandlerBuilding = (event, buildingCoordinates) => {
+    event.stopPropagation();
     const thisKey = this.getKeyForCoordinates(buildingCoordinates);
     if(this.state.currentBuildingSelected !== null){
       this.setState({currentBuildingSelected: null});
@@ -506,7 +524,6 @@ class App extends Component {
     if(this.state.selected_option_type === 'select'){
       //console.log(buildingCoordinates); // [0] [1]
       const building = this.state.buildings[thisKey];
-      console.log(building);
       this.setState({currentBuildingSelected: building});
       
     }
@@ -516,6 +533,19 @@ class App extends Component {
       let currentBuildingKeys = this.state.buildingKeys; // dictionary
       let currentBuildingKeysList = this.state.buildingKeysList; // list
       let currentTileMapZones = this.state.tileMapZones; // zones
+      const building = this.state.buildings[thisKey];
+      let currentPopulation = this.state.population;
+      let currentRevenues = this.state.revenues;
+      let currentExpenses = this.state.expenses;
+
+      currentPopulation -= building['residents'];
+      const currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[building['type']]][building['level']];
+      
+      if(currentDelta > 0){
+        currentRevenues -= currentDelta;
+      }else{
+        currentExpenses -= currentDelta;
+      }
 
       if(currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] === 0){
         return;
@@ -530,32 +560,101 @@ class App extends Component {
         builtBuildings: currentBuiltBuildings,
         buildingKeys: currentBuildingKeys,
         buildingKeysList: currentBuildingKeysList,
-        tileMapZones: currentTileMapZones
+        tileMapZones: currentTileMapZones,
+        population: currentPopulation,
+        revenues: currentRevenues,
+        expenses: currentExpenses
       });
-    }else if(this.state.selected_option_type === 'upgrade'){
-      // level up the building
+
+    }else if(this.state.selected_option_type === 'upgrade'){ 
       let currentBuildings = this.state.buildings;
+      const currentLevel = currentBuildings[thisKey]['level'];
+      let nextPrice = prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[thisKey]['type']]][currentLevel];
+
+      let currentRevenues = this.state.revenues;
+      let currentExpenses = this.state.expenses;
+      let currentDelta = 0
+
+      let nextPopulation = 0
+      if(currentLevel < 5){
+        nextPopulation = buildings_levels_codes[currentLevel + 1]['residents'] - buildings_levels_codes[currentLevel]['residents'];
+        nextPrice = prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[thisKey]['type']]][currentLevel + 1]
+        currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[currentBuildings[thisKey]['type']]][currentLevel + 1];
+      }
+
+      if(currentDelta > 0){
+        currentRevenues += currentDelta;
+      }else{
+        currentExpenses += currentDelta;
+      }
+
+      let currentPopulation = this.state.population;
+      currentPopulation += nextPopulation;
+
+      if(!this.canBuy(nextPrice)){
+        // not enough funds to upgrade
+        this.setState({errorCode: 'err_not_enough_funds'});
+        return;
+      }
+      // level up the building
 
       currentBuildings[thisKey] = {
+        'type': currentBuildings[thisKey]['type'],
         'level': currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5,
-        'orientation': currentBuildings[thisKey]['orientation']
+        'orientation': currentBuildings[thisKey]['orientation'],
+        'price': nextPrice,
+        'residents': nextPopulation
       };
 
       this.setState({
-        buildings: currentBuildings
+        buildings: currentBuildings,
+        population: currentPopulation,
+        revenues: currentRevenues,
+        expenses: currentExpenses
       });
+      this.buildingHoverIn(event, buildingCoordinates);
+      this.decreaseFunds(nextPrice);
     }else if(this.state.selected_option_type === 'downgrade'){
       // level down the building
       let currentBuildings = this.state.buildings;
+      const currentLevel = currentBuildings[thisKey]['level'];
+      let nextPrice = prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[thisKey]['type']]][currentLevel];
+      
+      let currentRevenues = this.state.revenues;
+      let currentExpenses = this.state.expenses;
+      let currentDelta = 0;
+
+      let nextPopulation = 0;
+      if(currentLevel > 1){
+        nextPopulation = buildings_levels_codes[currentLevel]['residents'] - buildings_levels_codes[currentLevel - 1]['residents']; // this level, not previous
+        nextPrice = prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[thisKey]['type']]][currentLevel]
+        currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[currentBuildings[thisKey]['type']]][currentLevel];
+      }
+
+      if(currentDelta > 0){
+        currentRevenues -= currentDelta;
+      }else{
+        currentExpenses -= currentDelta;
+      }
+      
+      let currentPopulation = this.state.population;
+      currentPopulation -= nextPopulation;
 
       currentBuildings[thisKey] = {
+        'type': currentBuildings[thisKey]['type'],
         'level': currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1,
-        'orientation': currentBuildings[thisKey]['orientation']
+        'orientation': currentBuildings[thisKey]['orientation'],
+        'price': nextPrice,
+        'residents': nextPopulation
       };
 
       this.setState({
-        buildings: currentBuildings
+        buildings: currentBuildings,
+        population: currentPopulation,
+        revenues: currentRevenues,
+        expenses: currentExpenses
       });
+      this.buildingHoverIn(event, buildingCoordinates);
     }
   }
 
@@ -569,7 +668,7 @@ class App extends Component {
     if(this.state.canLoad){
       const data = JSON.parse(localStorage.getItem("save"));
       if(data === null){
-        console.log("Error: no saves could be found.");
+        this.setState({errorCode: 'err_load_no_save'});
         return;
       }
       this.setState(data);
@@ -581,7 +680,7 @@ class App extends Component {
           this.setState({loaded: false});
       }, 1500);
     }else{
-      console.log("Error: too early to load. Try again later.");
+      this.setState({errorCode: 'err_load_too_early'});
     }
   }
 
@@ -622,9 +721,12 @@ class App extends Component {
       const orientation = this.checkNearbyRoadDirection(neighbour);
       let currentBuildings = this.state.buildings;
       if((typeRoadOperation === 'add' && orientation !== 0) || typeRoadOperation === 'remove'){
-        currentBuildings[key] = {
+        currentBuildings[key] = { 
+          'type': currentBuildings[key]['type'],
           'level': currentBuildings[key]['level'],
-          'orientation': orientation
+          'orientation': orientation,
+          'price': prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[key]['type']]][1],
+          'residents': buildings_levels_codes[currentBuildings[key]['level']]['residents']
         };
       }
       this.setState({buildings: currentBuildings});
@@ -646,6 +748,44 @@ class App extends Component {
   disableErrorCode = () => {
     this.setState({errorCode: null});
   }
+
+  buildingHoverIn = (event, buildingCoordinates) => {
+    event.stopPropagation();
+    const key = this.getKeyForCoordinates([buildingCoordinates[0],buildingCoordinates[1]]);
+    const building = this.state.buildings[key];
+    const typeOfBuilding = tile_mappings_zones_codes_inverted[building.type];
+    if(this.state.selected_option_type === 'upgrade'){
+      const nextLevel = building.level + 1;
+      const priceNextLevel = prices_constructions[typeOfBuilding][nextLevel];
+      let infoText = 'Reached maximum level';
+      if(building.level < 5){
+        infoText = 'Upgrade ' + typeOfBuilding + ' building for ' + priceNextLevel + '$';
+      }
+      this.setState({information: infoText});
+    }else if(this.state.selected_option_type === 'downgrade'){
+      let infoText = 'Can not be downgraded';
+      if(building.level > 1){
+        infoText = 'Downgrade ' + typeOfBuilding + ' building';
+      }
+      this.setState({information: infoText});
+    }
+  }
+
+  buildingHoverOut = (event) => {
+    event.stopPropagation();
+    this.setState({information: null});
+    if(this.state.errorCode){
+      this.disableErrorCode();
+    }
+  }
+
+  cycleFinished = () => {
+    const expenses = this.state.expenses;
+    const revenues = this.state.revenues;
+    let newFunds = this.state.funds + (revenues + expenses);
+    this.setState({funds: newFunds});
+  }
+
   
   render(){
   return (
@@ -660,6 +800,8 @@ class App extends Component {
           loadFile={this.loadFileApp}
           incrementDate={this.incrementDate}
           funds={this.state.funds}
+          revenues={this.state.revenues}
+          expenses={this.state.expenses}
           date={this.state.date}
           isPaused={this.state.isPaused}
           setIsPausedApp={(value) => this.setIsPausedApp(value)}
@@ -668,9 +810,11 @@ class App extends Component {
           errorCode={this.state.errorCode}
           disableErrorCode={this.disableErrorCode}
           population={this.state.population}
+          information={this.state.information}
+          cycleFinished={this.cycleFinished}
         />
       <div className="CanvasWrapper">
-      <Canvas shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
+      <Canvas className={this.state.isPaused ? 'isPaused' : null} shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
         <ambientLight intensity={0.15} />
         <directionalLight
           castShadow
@@ -727,6 +871,8 @@ class App extends Component {
                 buildingsShow={this.state.buildingsShow}
                 sewageMode={this.state.sewageMode}
                 isPaused={this.state.isPaused}
+                buildingHoverIn={this.buildingHoverIn}
+                buildingHoverOut={this.buildingHoverOut}
               />
             )
           }

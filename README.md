@@ -40,3 +40,7 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 <h3>12.02.2021</h3>
 
 ![Image 5](pic5.png)
+
+<h3>14.02.2021</h3>
+
+![Image 6](pic6.png)

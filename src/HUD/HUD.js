@@ -38,6 +38,8 @@ const HUD = ({
     loadFile,
     incrementDate,
     funds,
+    revenues,
+    expenses,
     date,
     isPaused,
     setIsPausedApp,
@@ -45,7 +47,9 @@ const HUD = ({
     disableCurrentBuildingSelected,
     errorCode,
     disableErrorCode,
-    population}) => {
+    population,
+    information,
+    cycleFinished}) => {
     
     const defaultTitle = 'Information area';
     const defaultInformation = 'Hover over icons to learn more';
@@ -80,6 +84,7 @@ const HUD = ({
             if(progress >= 100){
                 setProgress(0);
                 incrementDate();
+                cycleFinished();
             }
           }, timeLapseModes[timelapseMode].incrementInterval);
         } else if (!reload && progress < 100) {
@@ -262,7 +267,8 @@ const HUD = ({
                     <label>{errorCode ? information_mappings_zones_codes[errorCode].title : 
                     currentBuildingSelected === null ? currentTitle : 'Building'}</label>
 
-                    {errorCode ? (<p>{information_mappings_zones_codes[errorCode].information}</p>) :
+                    {information ? (<p>{information}</p>) :
+                    errorCode ? (<p>{information_mappings_zones_codes[errorCode].information}</p>) :
                     currentBuildingSelected === null ? (<p>{currentInformation}</p>) : (
                             <div className='HUD_information'>
                                 <label className='HUD_information_label'>{tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].charAt(0).toUpperCase() + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].slice(1)}</label>
@@ -275,11 +281,20 @@ const HUD = ({
             </section>
 
             <section className='HUD_top'>
-                <section className='HUD_top_section'>
+                <section className={'HUD_top_section_prolonged'}
+                    onMouseEnter={() => iconMouseEnter('funds')} 
+                    onMouseLeave={() => iconMouseLeave('funds')}
+                >
                     <label>Funds: </label>
-                    <label>{funds}$</label>
+                    <label className={funds >= 0 ? null : 'HUD_negative_funds'}>{funds}$</label>
+                    <label className={expenses + revenues >= 0 ? 'HUD_positive_funds' : 'HUD_negative_funds'}>
+                        {(expenses + revenues >= 0) ? ' (+' + (expenses + revenues) + ')' : ' (' + (expenses + revenues) + ')'}
+                    </label>
                 </section>
-                <section className='HUD_top_section'>
+                <section className='HUD_top_section'
+                    onMouseEnter={() => iconMouseEnter('population')} 
+                    onMouseLeave={() => iconMouseLeave('population')}
+                >
                     <label>Population: </label>
                     <label>{population}</label>
                 </section>
@@ -291,7 +306,7 @@ const HUD = ({
                     <div style={{
                         'width': progress,
                         'height': '100%',
-                        'backgroundColor': 'green',
+                        'backgroundColor': 'rgb(106, 236, 245)',
                         'position': 'relative'
                     }
                     }>
@@ -322,6 +337,20 @@ const HUD = ({
                     >
                         <img className='HUD_top_button' src={icon_fast2} alt='icon_fast2'/>
                     </section>
+                </section>
+                <section className='HUD_top_section'
+                    onMouseEnter={() => iconMouseEnter('revenues')} 
+                    onMouseLeave={() => iconMouseLeave('revenues')}
+                >
+                    <label>Revenues: </label>
+                    <label className='HUD_positive_funds'>{'+' + revenues + '$'}</label>
+                </section>
+                <section className='HUD_top_section'
+                    onMouseEnter={() => iconMouseEnter('expenses')} 
+                    onMouseLeave={() => iconMouseLeave('expenses')}
+                >
+                    <label>Expenses: </label>
+                    <label className='HUD_negative_funds'>{expenses  + '$'}</label>
                 </section>
             </section>
             
