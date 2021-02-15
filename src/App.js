@@ -1,20 +1,23 @@
-import React, {Component, Suspense} from "react";
-import {Canvas} from "react-three-fiber";
+import React, {Component, Suspense} from 'react';
+import {Canvas} from 'react-three-fiber';
 import * as THREE from 'three';
-import "./App.scss";
+import './App.scss';
 import HUD from './HUD/HUD';
 import Ground from './Ground/Ground';
 import Building from './Building/Building';
 import Sky from './Sky/Sky.js';
 import {saveFile} from './Management/Save';
 
-import {OrbitControls} from "@react-three/drei";
+import {OrbitControls} from '@react-three/drei';
 import {tile_mappings_textures_codes, tile_mappings_zones_codes_inverted} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 import {prices_constructions, prices_expenses_and_revenues} from './Mappings/MappingPrices';
+import {tree_mappings} from './Mappings/MappingNature';
 
 // TO DO: 
-// - add trees
+// - update water av. when adding/removing water tiles
+// - add map margins
+// - add elevation
 // - happines/needs for residential areas (commercial, jobs from industry)
 // - show the needs through icons over buildings
 // - add parks that improve happiness
@@ -31,7 +34,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     const n = 30;
-    const m = 30;
+    const m = 28;
     const today = new Date();
     this.state = {
       mapSize: [n,m],
@@ -48,7 +51,15 @@ class App extends Component {
       buildingKeysList: [],
       buildingKeysCurrent: 0,
       buildings: {},
-      pipesCoordinates: [],
+      pipes: {},
+      pipesKeys: {},
+      pipesKeysList: [],
+      pipesKeysCurrent: 0,
+      waterAvailability: Array(n).fill().map(()=>Array(m).fill(0)),
+      trees: {}, // [x, y] => type
+      treesKeys: {},
+      treesKeysList: [],
+      treesKeysCurrent: 0,
       loaded: false,
       canLoad: true,
       funds: 2000,
@@ -64,7 +75,7 @@ class App extends Component {
       population: 0,
       information: null,
       expenses: 0,
-      revenues: 0
+      revenues: 0,
     }
   }
 
@@ -124,12 +135,22 @@ class App extends Component {
         // deny road placement
         return;
       }
+      if(this.state.trees[[x,y]]){
+        // deny road placement over trees
+        return;
+      }
       if(!this.canBuy(prices_constructions['road'])){
         // not enough funds to buy road
         this.setState({errorCode: 'err_not_enough_funds'});
         return;
       }
       this.decreaseFunds(prices_constructions['road']);
+    }
+    else if(value === 12 || value === 13){
+      // deny water/shore tiles over trees
+      if(this.state.trees[[x,y]]){
+        return;
+      }
     }
     let newTileMapTextures = this.state.tileMapTextures;
     newTileMapTextures[x][y] = value;
@@ -186,22 +207,83 @@ class App extends Component {
   }
 
   setTileMapObject = ([x,y], value = -1) => {
-    if(value === -1){
-      if(!this.canBuy(prices_constructions['pipe'])){
-        // not enough funds to buy pipe
-        this.setState({errorCode: 'err_not_enough_funds'});
-        return;
+    if(this.state.selected_option_type === 'pipe'){
+      if(value === -1){ // why value === -1?
+        let currentPipes = this.state.pipes;
+        if(currentPipes[[x,y]] !== undefined){
+          // restriction of placing pipes on existing pipes
+          return;
+        }
+        if(!this.canBuy(prices_constructions['pipe'])){
+          // not enough funds to buy pipe
+          this.setState({errorCode: 'err_not_enough_funds'});
+          return;
+        }
+        this.decreaseFunds(prices_constructions['pipe']);   
+
+        let currentObjects = this.state.tileMapObjects;
+        let currentPipesKeys = this.state.pipesKeys;
+        let currentPipesKeysList = this.state.pipesKeysList;
+        let currentPipesKeysCurrent = this.state.pipesKeysCurrent;
+
+        // add pipe
+        currentObjects[x][y] = 1;
+        currentPipes[[x,y]] = 1;
+        currentPipesKeys[currentPipesKeysCurrent] = [x,y];
+        currentPipesKeysList.push(currentPipesKeysCurrent);
+        currentPipesKeysCurrent += 1;
+        this.updateObjectsEnv([x,y],value,'pipe');
+        this.updateConnectedPipesToSource();
+
+        this.setState({
+            tileMapObjects: currentObjects,
+            pipes: currentPipes,
+            pipesKeys: currentPipesKeys,
+            pipesKeysList: currentPipesKeysList,
+            pipesKeysCurrent: currentPipesKeysCurrent,
+        });
       }
-      this.decreaseFunds(prices_constructions['pipe']);
+    }else if(this.state.selected_option_type === 'tree'){
+      if(value === -1){
+        if(this.state.tileMapTextures[x][y] === 12 || this.state.tileMapTextures[x][y] === 13){
+          // restriction of not placing trees on water/shore
+          return;
+        }
+        let currentTrees = this.state.trees;
+        if(currentTrees[[x,y]] !== undefined){
+          // restriction of placing trees on existing trees
+          return;
+        }
+        if(this.state.tileMapTextures[x][y] >= 1 && this.state.tileMapTextures[x][y] <= 11){
+          // restriction of placing trees over roads
+          return;
+        }
+        if(!this.canBuy(prices_constructions['tree'])){
+          // not enough funds to buy tree
+          this.setState({errorCode: 'err_not_enough_funds'});
+          return;
+        }
+        this.decreaseFunds(prices_constructions['tree']);
+      
+        let currentTreesKeys = this.state.treesKeys;
+        let currentTreesKeysList = this.state.treesKeysList;
+        let currentTreesKeysCurrent = this.state.treesKeysCurrent;
+        const random_type = Math.floor(Math.random() * Object.keys(tree_mappings).length + 1);
+
+        // add tree
+        currentTrees[[x,y]] = tree_mappings[random_type];
+        currentTreesKeys[currentTreesKeysCurrent] = [x,y,random_type];
+        currentTreesKeysList.push(currentTreesKeysCurrent);
+        currentTreesKeysCurrent += 1;
+
+        this.setState({
+          trees: currentTrees,
+          treesKeys: currentTreesKeys,
+          treesKeysList: currentTreesKeysList,
+          treesKeysCurrent: currentTreesKeysCurrent
+        });
+      }
     }
-    let currentPipesCoordinates = this.state.pipesCoordinates;
-
-    currentPipesCoordinates.push([x,y]);
-    this.updateObjectsEnv([x,y],value,'pipe');
-
-    this.setState({
-      pipesCoordinates: currentPipesCoordinates
-    });
   }
 
   changeGridShow = () => {
@@ -221,10 +303,10 @@ class App extends Component {
       else if(y > 0 && this.state.tileMapTextures[x][y-1] > 0 && this.state.tileMapTextures[x][y-1] <= 11){
         result = true;
       }
-      else if(x < this.state.tileMapZones.length-1 && this.state.tileMapTextures[x+1][y] > 0 && this.state.tileMapTextures[x+1][y] <= 11){
+      else if(x < this.state.mapSize[0] - 1 && this.state.tileMapTextures[x+1][y] > 0 && this.state.tileMapTextures[x+1][y] <= 11){
         result = true;
       }
-      else if(y < this.state.tileMapZones[0].length-1 && this.state.tileMapTextures[x][y+1] > 0 && this.state.tileMapTextures[x][y+1] <= 11){
+      else if(y < this.state.mapSize[1] - 1 && this.state.tileMapTextures[x][y+1] > 0 && this.state.tileMapTextures[x][y+1] <= 11){
         result = true;
       }
     }
@@ -243,10 +325,10 @@ class App extends Component {
     if(y > 0 && this.state.tileMapObjects[x][y-1] > 0 && this.state.tileMapObjects[x][y-1] <= 11){
       top = true;
     }
-    if(x < this.state.tileMapObjects.length-1 && this.state.tileMapObjects[x+1][y] > 0 && this.state.tileMapObjects[x+1][y] <= 11){
+    if(x < this.state.mapSize[0] - 1 && this.state.tileMapObjects[x+1][y] > 0 && this.state.tileMapObjects[x+1][y] <= 11){
       right = true;
     }
-    if(y < this.state.tileMapObjects[0].length-1 && this.state.tileMapObjects[x][y+1] > 0 && this.state.tileMapObjects[x][y+1] <= 11){
+    if(y < this.state.mapSize[1] - 1 && this.state.tileMapObjects[x][y+1] > 0 && this.state.tileMapObjects[x][y+1] <= 11){
       bottom = true;
     }
     
@@ -349,10 +431,10 @@ class App extends Component {
     if(y > 0 && this.state.tileMapTextures[x][y-1] > 0 && this.state.tileMapTextures[x][y-1] <= 11){
       top = true;
     }
-    if(x < this.state.tileMapZones.length-1 && this.state.tileMapTextures[x+1][y] > 0 && this.state.tileMapTextures[x+1][y] <= 11){
+    if(x < this.state.mapSize[0] - 1 && this.state.tileMapTextures[x+1][y] > 0 && this.state.tileMapTextures[x+1][y] <= 11){
       right = true;
     }
-    if(y < this.state.tileMapZones[0].length-1 && this.state.tileMapTextures[x][y+1] > 0 && this.state.tileMapTextures[x][y+1] <= 11){
+    if(y < this.state.mapSize[1]-1 && this.state.tileMapTextures[x][y+1] > 0 && this.state.tileMapTextures[x][y+1] <= 11){
       bottom = true;
     }
 
@@ -506,18 +588,31 @@ class App extends Component {
     this.setState({builtBuildings: builtBuildings});
   }
 
-  getKeyForCoordinates = (coordinates) => {
-    let currentBuildingKeys = this.state.buildingKeys; // dictionary
-    const keys = Object.keys(currentBuildingKeys).map(key => parseInt(key));
-    const thisKey = keys.find(key => (currentBuildingKeys[key][0] === coordinates[0] 
-      && currentBuildingKeys[key][1] === coordinates[1]));
+  getKeyForCoordinates = ([x,y], type) => {
+    let thisKey = null;
+    if(type === 'building'){
+      let currentBuildingKeys = this.state.buildingKeys; // dictionary
+      const keys = Object.keys(currentBuildingKeys).map(key => parseInt(key));
+      thisKey = keys.find(key => (currentBuildingKeys[key] !== undefined && currentBuildingKeys[key][0] === x 
+        && currentBuildingKeys[key][1] === y));
+    }else if(type === 'pipe'){
+      let currentPipesKeys = this.state.pipesKeys; // dictionary
+      const keys = Object.keys(currentPipesKeys).map(key => parseInt(key));
+      thisKey = keys.find(key => (currentPipesKeys[key] !== undefined && currentPipesKeys[key][0] === x 
+        && currentPipesKeys[key][1] === y));
+    }else if(type === 'tree'){
+      let currentTreesKeys = this.state.treesKeys; // dictionary
+      const keys = Object.keys(currentTreesKeys).map(key => parseInt(key));
+      thisKey = keys.find(key => (currentTreesKeys[key] !== undefined && currentTreesKeys[key][0] === x 
+        && currentTreesKeys[key][1] === y));
+    }
 
     return thisKey;
   }
 
   clickHandlerBuilding = (event, buildingCoordinates) => {
     event.stopPropagation();
-    const thisKey = this.getKeyForCoordinates(buildingCoordinates);
+    const thisKey = this.getKeyForCoordinates(buildingCoordinates, 'building');
     if(this.state.currentBuildingSelected !== null){
       this.setState({currentBuildingSelected: null});
     }
@@ -552,6 +647,7 @@ class App extends Component {
       }
 
       currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+      //currentBuildingKeys[thisKey] = undefined;
       delete currentBuildingKeys[thisKey];
       currentBuildingKeysList = currentBuildingKeysList.filter(key => key !== thisKey);
       currentTileMapZones[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
@@ -661,12 +757,15 @@ class App extends Component {
   saveFileApp = () => {
     // pass the data you want to be persisstent
     const data = JSON.stringify(this.state);
-    saveFile(data);
+    const date = new Date();
+    saveFile(data, date);
+    this.setState({information: 'Saved. You may now exit the simulation'});
   }
 
   loadFileApp = () => {
     if(this.state.canLoad){
       const data = JSON.parse(localStorage.getItem("save"));
+      const date = localStorage.getItem("save_date");
       if(data === null){
         this.setState({errorCode: 'err_load_no_save'});
         return;
@@ -679,6 +778,7 @@ class App extends Component {
       setTimeout(() => {
           this.setState({loaded: false});
       }, 1500);
+      this.setState({information: 'Simulation loaded from ' + date});
     }else{
       this.setState({errorCode: 'err_load_too_early'});
     }
@@ -717,7 +817,7 @@ class App extends Component {
     }
     neighbours.map(neighbour => {
       // update neighbours orientation
-      const key = this.getKeyForCoordinates(neighbour);
+      const key = this.getKeyForCoordinates(neighbour, 'building');
       const orientation = this.checkNearbyRoadDirection(neighbour);
       let currentBuildings = this.state.buildings;
       if((typeRoadOperation === 'add' && orientation !== 0) || typeRoadOperation === 'remove'){
@@ -751,7 +851,7 @@ class App extends Component {
 
   buildingHoverIn = (event, buildingCoordinates) => {
     event.stopPropagation();
-    const key = this.getKeyForCoordinates([buildingCoordinates[0],buildingCoordinates[1]]);
+    const key = this.getKeyForCoordinates([buildingCoordinates[0],buildingCoordinates[1]], 'building');
     const building = this.state.buildings[key];
     const typeOfBuilding = tile_mappings_zones_codes_inverted[building.type];
     if(this.state.selected_option_type === 'upgrade'){
@@ -786,6 +886,181 @@ class App extends Component {
     this.setState({funds: newFunds});
   }
 
+  removePipe = (event, [x,y]) => {
+    event.stopPropagation();
+    const thisKey = this.getKeyForCoordinates([x,y], 'pipe');
+
+    let currentObjects = this.state.tileMapObjects;
+    let currentPipes = this.state.pipes;
+    let currentPipesKeys = this.state.pipesKeys;
+    let currentPipesKeysList = this.state.pipesKeysList;
+
+    currentObjects[x][y] = 0;
+    //currentPipes[[x,y]] = undefined;
+    delete currentPipes[[x,y]];
+    currentPipesKeysList = currentPipesKeysList.filter(key => key !== thisKey);
+    //currentPipesKeys[thisKey] = undefined;
+    delete currentPipesKeys[thisKey];
+
+    this.setState({
+      tileMapObjects: currentObjects,
+      pipes: currentPipes,
+      pipesKeys: currentPipesKeys,
+      pipesKeysList: currentPipesKeysList
+    });
+
+    this.updateObjectsEnv([x,y], 0, 'pipe');
+
+    this.updateConnectedPipesToSource();
+  }
+
+  removeTree = (event, [x,y]) => {
+    event.stopPropagation();
+    const thisKey = this.getKeyForCoordinates([x,y], 'tree');
+
+    let currentTrees = this.state.trees;
+    let currentTreesKeys = this.state.treesKeys;
+    let currentTreesKeysList = this.state.treesKeysList;
+
+    //currentTrees[[x,y]] = undefined;
+    delete currentTrees[[x,y]];
+    currentTreesKeysList = currentTreesKeysList.filter(key => key !== thisKey);
+    //currentTreesKeys[thisKey] = undefined;
+    delete currentTreesKeys[thisKey];
+
+    this.setState({
+      trees: currentTrees,
+      treesKeys: currentTreesKeys,
+      treesKeysList: currentTreesKeysList
+    });
+  }
+
+  setInformation = (info) => {
+    this.setState({information: info});
+  }
+
+  updateWaterAvailability = (currentWaterAvailability, [x,y], value) => {
+    if(value === 1){
+      // added a pipe
+      // change neighbouring tiles as well
+      if(x > 0){
+        currentWaterAvailability[x-1][y] = value;
+      }
+      if(y > 0){
+        currentWaterAvailability[x][y-1] = value;
+      }
+      if(x < this.state.mapSize[0] - 1){
+        currentWaterAvailability[x+1][y] = value;
+      }
+      if(y < this.state.mapSize[1] - 1){
+        currentWaterAvailability[x][y+1] = value;
+      }
+      currentWaterAvailability[x][y] = value;
+    }else if(value === 0){
+      console.log(this.state.pipes);
+      // removed a pipe
+      let hasNeighbourPipe = false;
+      if(x > 0){
+        if(!this.state.pipes[[x-1,y]]){
+          currentWaterAvailability[x-1][y] = value;
+        }else{
+          hasNeighbourPipe = true;
+        }
+      }
+      if(y > 0){
+        if(!this.state.pipes[[x,y-1]]){
+          currentWaterAvailability[x][y-1] = value;
+        }else{
+          hasNeighbourPipe = true;
+        }
+      }
+      if(x < this.state.mapSize[0] - 1){
+        if(!this.state.pipes[[x+1,y]]){
+          currentWaterAvailability[x+1][y] = value;
+        }else{
+          hasNeighbourPipe = true;
+        }
+      }
+      if(y < this.state.mapSize[1] - 1){
+        if(!this.state.pipes[[x,y+1]]){
+          currentWaterAvailability[x][y+1] = value;
+        }else{
+          hasNeighbourPipe = true;
+        }
+      }
+      
+      if(!hasNeighbourPipe){ // no neighbour, so no water for this tile
+        currentWaterAvailability[x][y] = value;
+      }
+    }
+
+    return currentWaterAvailability;
+  }
+
+  updateConnectedPipesToSource = () => {
+    // checks whether the sewage system is connected to a water source
+    const pipesKeys = this.state.pipesKeys;
+    const pipesKeysList = this.state.pipesKeysList;
+    
+    // check all neighbours of pipes if tile is water
+    const connected = pipesKeysList.filter(key => pipesKeys[key] && this.checkNeighbourTileWater(pipesKeys[key]));
+    // starting from these pipes, traverse the map and mark the water availability
+    // reset water availability
+    let updatedWaterAvailability = Array(this.state.mapSize[0]).fill().map(()=>Array(this.state.mapSize[0]).fill(0));
+    
+    // for each connected pipe, go to neighbours where water is not available
+    // first obtain the neighbours who do not have water
+    connected.map(key => {
+      const coords = pipesKeys[key];
+      updatedWaterAvailability = this.traversePipes(coords, updatedWaterAvailability);
+    });
+
+    this.setState({waterAvailability: updatedWaterAvailability});
+  }
+
+  traversePipes = ([x,y], waterAvailability) => {
+    // check neighbours - if they are a pipe and have no water available => choose them
+    let neighbours = [];
+    if(x > 0 && waterAvailability[x-1][y] === 0 && this.state.pipes[[x-1,y]] === 1){
+      neighbours.push([x-1,y]);
+    }
+    if(y > 0 && waterAvailability[x][y-1] === 0 && this.state.pipes[[x,y-1]]  === 1){
+      neighbours.push([x,y-1]);
+    }
+    if(x < this.state.mapSize[0] - 1 && waterAvailability[x+1][y] === 0 && this.state.pipes[[x+1,y]]  === 1){
+      neighbours.push([x+1,y]);
+    }
+    if(y < this.state.mapSize[1] - 1 && waterAvailability[x][y+1] === 0 && this.state.pipes[[x,y+1]]  === 1){
+      neighbours.push([x,y+1]);
+    }
+
+    // update water av for current pipe + neighbours
+    waterAvailability = this.updateWaterAvailability(waterAvailability, [x,y], 1);
+
+    neighbours.map(coords => {
+      waterAvailability = this.traversePipes(coords, waterAvailability);
+    })
+
+    return waterAvailability;
+  }
+
+  checkNeighbourTileWater = ([x,y]) => {
+    let result = false;
+    if(x > 0 && this.state.tileMapTextures[x-1][y] === 12){
+      return true;
+    }
+    if(y > 0 && this.state.tileMapTextures[x][y-1] === 12){
+      return true;
+    }
+    if(x < this.state.mapSize[0] - 1 && this.state.tileMapTextures[x+1][y] === 12){
+      return true;
+    }
+    if(y < this.state.mapSize[1] - 1 && this.state.tileMapTextures[x][y+1] === 12){
+      return true;
+    }
+
+    return result;
+  }
   
   render(){
   return (
@@ -811,6 +1086,7 @@ class App extends Component {
           disableErrorCode={this.disableErrorCode}
           population={this.state.population}
           information={this.state.information}
+          setInformation={this.setInformation}
           cycleFinished={this.cycleFinished}
         />
       <div className="CanvasWrapper">
@@ -837,7 +1113,9 @@ class App extends Component {
           setTileMapZone={this.setTileMapZone}
           setTileMapObject={this.setTileMapObject}
           position={[0,0,0]} 
-          size={this.state.mapSize}/>
+          size={this.state.mapSize}
+          removePipe={this.removePipe}
+          removeTree={this.removeTree}/>
 
         {//<Sky mapSize={this.state.mapSize} levelBoundaries={[10,15]} cloudsCount={10}/>
         }

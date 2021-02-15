@@ -1,10 +1,10 @@
 import React from 'react'
 import {a} from "react-spring/three";
 
-const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
+const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode, removePipe}) => {
 
     const pipe_straight_1 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -27,7 +27,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     );
 
     const pipe_straight_2 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
             } rotation={[-Math.PI / 2, 0, Math.PI/2]}>
@@ -50,7 +50,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     );
 
     const pipe_corner_1 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - 0.5 + 1, 0.005 ,position[2]-mapSize[1]/2 - 0.35 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -79,7 +79,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     )
 
     const pipe_corner_2 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - 0.5 + 1, 0.005 ,position[2]-mapSize[1]/2 - 0.35 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -108,7 +108,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     )
 
     const pipe_corner_3 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - 0.5 + 1, 0.005 ,position[2]-mapSize[1]/2 - 0.65 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -137,7 +137,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     )
 
     const pipe_corner_4 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - 0.5 + 1, 0.005 ,position[2]-mapSize[1]/2 - 0.65 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -166,7 +166,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     )
 
     const pipe_threeway_1 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - 0.5 + 1, 0.005 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -201,7 +201,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     );
 
     const pipe_threeway_2 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 ,position[2]-mapSize[1]/2 - 3/4 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -236,7 +236,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     );
 
     const pipe_threeway_3 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 -size[0]/2 + 1, 0.005 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -271,7 +271,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     );
 
     const pipe_threeway_4 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 ,position[2]-mapSize[1]/2 - 1/4 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>
@@ -306,7 +306,7 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode}) => {
     );
 
     const pipe_intersection_4 = (
-        <group>
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])}>
             <a.mesh castShadow position={
                 [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
             } rotation={[-Math.PI / 2, 0, 0]}>

@@ -22,7 +22,8 @@ export const prices_constructions = {
         4: 15000,
         5: 45000
     },
-    'pipe': 10
+    'pipe': 10,
+    'tree': 2
 }
 
 export const prices_expenses_and_revenues = {

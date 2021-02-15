@@ -9,6 +9,7 @@ import icon_road from '../assets/icons/icon_road.png';
 import icon_pipe from '../assets/icons/icon_pipe.png';
 import icon_water from '../assets/icons/icon_water.png';
 import icon_shore from '../assets/icons/icon_shore.png';
+import icon_tree from '../assets/icons/icon_tree.png';
 import icon_residential from '../assets/icons/icon_residential.png';
 import icon_commercial from '../assets/icons/icon_commercial.png';
 import icon_industry from '../assets/icons/icon_industry.png';
@@ -49,6 +50,7 @@ const HUD = ({
     disableErrorCode,
     population,
     information,
+    setInformation,
     cycleFinished}) => {
     
     const defaultTitle = 'Information area';
@@ -104,6 +106,7 @@ const HUD = ({
         }
         setCurrentTitle(information_mappings_zones_codes[icon].title);
         setCurrentInformation(information_mappings_zones_codes[icon].information);
+        setInformation(null);
     }
 
     const iconMouseLeave = (icon) => {
@@ -200,6 +203,12 @@ const HUD = ({
                         onMouseLeave={() => iconMouseLeave('shore')}
                     >
                         <img className='HUD_icon' src={icon_shore} alt='icon_shore'/>
+                    </section>
+                    <section className='HUD_button' onClick={() => changeSelectedOptionType('tree')}
+                        onMouseEnter={() => iconMouseEnter('tree')} 
+                        onMouseLeave={() => iconMouseLeave('tree')}
+                    >
+                        <img className='HUD_icon' src={icon_tree} alt='icon_tree'/>
                     </section>
                 </section>
                 

@@ -4,7 +4,7 @@ import {prices_constructions} from './MappingPrices';
 export const information_mappings_zones_codes = {
     'select': {
         title: 'Select',
-        information: ''
+        information: 'Learn more about the buildings from the city'
     },
     'grid': {
         title: 'Grid',
@@ -37,6 +37,10 @@ export const information_mappings_zones_codes = {
     'shore': {
         title: 'Shore',
         information: 'Place shore tiles to contain the water (left-click to place, right-click to remove)'
+    },
+    'tree': {
+        title: 'Tree',
+        information: 'Place trees of different sizes'
     },
     'residential': {
         title: 'Residential area',

@@ -20,8 +20,9 @@ import TextureRoad11 from '../assets/roads/Road11.png';
 import TextureWater1 from '../assets/water/Water1.png';
 import TextureShore1 from '../assets/shore/Shore1.png';
 import TextureDirt1 from '../assets/dirt/Dirt1.png';
+import TextureDirt2 from '../assets/dirt/Dirt2.png';
 
-const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture, setTileMapZone, setTileMapObject, selected_option_type, sewageMode}) => {
+const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture, setTileMapZone, setTileMapObject, selected_option_type, sewageMode, waterAvailability}) => {
     const size = [1,1];
     const actual_position = position.map(pos => pos - 0.5);
     actual_position[1] = 0.001;
@@ -41,6 +42,7 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
     const textureWater1 = useLoader(THREE.TextureLoader, TextureWater1);
     const textureShore1 = useLoader(THREE.TextureLoader, TextureShore1);
     const textureDirt1 = useLoader(THREE.TextureLoader, TextureDirt1);
+    const textureDirt2 = useLoader(THREE.TextureLoader, TextureDirt2);
 
     const tile_mappings_textures = {
         0: textureGrass1,
@@ -57,7 +59,8 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
         11: textureRoad11,
         12: textureWater1,
         13: textureShore1,
-        14: textureDirt1
+        14: textureDirt1,
+        15: textureDirt2
     }
 
     let rows = tileMapZones.length;
@@ -72,7 +75,7 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
                     setTileMapZone([position_row, position_col], tile_mappings_zones_codes[type]);
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], tile_mappings_textures_codes[type], tile_mappings_textures);
-                }else if(selected_option_type === 'pipe'){
+                }else if(selected_option_type === 'pipe' || selected_option_type === 'tree'){
                     setTileMapObject([position_row, position_col]);
                 }
             
@@ -82,14 +85,13 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
                     setTileMapZone([position_row, position_col], 0);
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], 0);
-                }else if(selected_option_type === 'pipe'){
-                    setTileMapObject([position_row, position_col], 0);
                 }
             }}
             >
                 <planeBufferGeometry attach='geometry' args={size}/>
                 <meshStandardMaterial 
-                    map={sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
+                    map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
+                        sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
                     color={tile_mappings_zones[tileMapZones[position_row][position_col]]}
                 />

@@ -22,7 +22,7 @@ const Cloud = ({mapSize, level, size, color, speed}) => {
     return (
       <a.mesh onClick={() => setExpand(!expand)} scale={spring.scale} castShadow position={position} ref={mesh}>
         <boxBufferGeometry attach='geometry' args={size} />
-        <meshStandardMaterial attach='material' color={color}/>
+        <meshStandardMaterial attach='material' color={color} />
       </a.mesh>
     )
   }
