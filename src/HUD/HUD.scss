@@ -14,6 +14,7 @@
     width: $marginCanvasLeft;
     height: 100%;
     border: 1px solid black;
+    font-size: larger;
 }
 
 .HUD_top{
@@ -104,11 +105,32 @@
 }
 
 .HUD_information {
-
+    
 }
 
 .HUD_information_label {
     display: block;
+}
+
+.HUD_information_label_residential{
+    display: block;
+    color: green;
+    font-weight: 600;
+    text-shadow: 0.2px 0.2px black;
+}
+
+.HUD_information_label_commercial{
+    display: block;
+    color: blue;
+    font-weight: 600;
+    text-shadow: 0.2px 0.2px black;
+}
+
+.HUD_information_label_industry{
+    display: block;
+    color: orange;
+    font-weight: 600;
+    text-shadow: 0.2px 0.2px black;
 }
 
 .HUD_information_error {

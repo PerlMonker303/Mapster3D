@@ -9,13 +9,13 @@ import Sky from './Sky/Sky.js';
 import {saveFile} from './Management/Save';
 
 import {OrbitControls} from '@react-three/drei';
-import {tile_mappings_textures_codes, tile_mappings_zones_codes_inverted} from './Mappings/MappingCodes';
+import {tile_mappings_textures_codes, tile_mappings_zones_codes_inverted, icons_mappings_messages} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 import {prices_constructions, prices_expenses_and_revenues} from './Mappings/MappingPrices';
 import {tree_mappings} from './Mappings/MappingNature';
 
 // TO DO: 
-// - update water av. when adding/removing water tiles
+// - fix icons height based on level of building
 // - add map margins
 // - add elevation
 // - happines/needs for residential areas (commercial, jobs from industry)
@@ -28,7 +28,6 @@ import {tree_mappings} from './Mappings/MappingNature';
 // - load save and orient buildings
 // - fix clouds
 // - map size must be odd numbers
-// - fix raytracing issue
 
 class App extends Component {
   constructor(props) {
@@ -73,6 +72,7 @@ class App extends Component {
       currentBuildingSelected: null,
       errorCode: null, // string with error name - check MappingInformation.js
       population: 0,
+      informationTitle: null,
       information: null,
       expenses: 0,
       revenues: 0,
@@ -152,10 +152,17 @@ class App extends Component {
         return;
       }
     }
+
     let newTileMapTextures = this.state.tileMapTextures;
+    const oldTileValue = newTileMapTextures[x][y];
     newTileMapTextures[x][y] = value;
     this.setState({tileMapTextures: newTileMapTextures})
     this.updateTexturesEnv([x, y], value, tile_mappings_textures);
+
+    if(value === 12 || oldTileValue === 12){
+      // update water availability for pipes when adding water
+      this.updateConnectedPipesToSource();
+    }
   }
 
   setTileMapZone = ([x, y], value) => {
@@ -540,7 +547,8 @@ class App extends Component {
       'level': 1,
       'orientation': this.checkNearbyRoadDirection([x,y]),
       'price': prices_constructions[tile_mappings_zones_codes_inverted[type]][1],
-      'residents': type === 1 ? buildings_levels_codes[1]['residents'] : 0
+      'residents': type === 1 ? buildings_levels_codes[1]['residents'] : 0,
+      'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false
     };
     currentPopulation += (type === 1 ? buildings_levels_codes[1]['residents'] : 0);
     const delta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[type]][1];
@@ -618,7 +626,14 @@ class App extends Component {
     }
     if(this.state.selected_option_type === 'select'){
       //console.log(buildingCoordinates); // [0] [1]
-      const building = this.state.buildings[thisKey];
+      let building = this.state.buildings[thisKey];
+      // check for water availability
+      if(!building['hasWater'] && this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1){
+        building['hasWater'] = true;
+        let buildings = this.state.buildings;
+        buildings[thisKey] = building;
+        this.setState({buildings: buildings});
+      }
       this.setState({currentBuildingSelected: building});
       
     }
@@ -699,7 +714,8 @@ class App extends Component {
         'level': currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5,
         'orientation': currentBuildings[thisKey]['orientation'],
         'price': nextPrice,
-        'residents': nextPopulation
+        'residents': nextPopulation,
+        'hasWater': this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1 ? true : false
       };
 
       this.setState({
@@ -741,7 +757,8 @@ class App extends Component {
         'level': currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1,
         'orientation': currentBuildings[thisKey]['orientation'],
         'price': nextPrice,
-        'residents': nextPopulation
+        'residents': nextPopulation,
+        'hasWater': this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1 ? true : false
       };
 
       this.setState({
@@ -759,7 +776,7 @@ class App extends Component {
     const data = JSON.stringify(this.state);
     const date = new Date();
     saveFile(data, date);
-    this.setState({information: 'Saved. You may now exit the simulation'});
+    this.setState({informationTitle: 'Saved', information: 'You may now exit the simulation'});
   }
 
   loadFileApp = () => {
@@ -778,7 +795,7 @@ class App extends Component {
       setTimeout(() => {
           this.setState({loaded: false});
       }, 1500);
-      this.setState({information: 'Simulation loaded from ' + date});
+      this.setState({informationTitle: 'Loaded', information: 'Simulation loaded from ' + date});
     }else{
       this.setState({errorCode: 'err_load_too_early'});
     }
@@ -826,7 +843,8 @@ class App extends Component {
           'level': currentBuildings[key]['level'],
           'orientation': orientation,
           'price': prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[key]['type']]][1],
-          'residents': buildings_levels_codes[currentBuildings[key]['level']]['residents']
+          'residents': buildings_levels_codes[currentBuildings[key]['level']]['residents'],
+          'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false
         };
       }
       this.setState({buildings: currentBuildings});
@@ -861,22 +879,32 @@ class App extends Component {
       if(building.level < 5){
         infoText = 'Upgrade ' + typeOfBuilding + ' building for ' + priceNextLevel + '$';
       }
-      this.setState({information: infoText});
+      this.setState({informationTitle: 'Upgrade', information: infoText});
     }else if(this.state.selected_option_type === 'downgrade'){
       let infoText = 'Can not be downgraded';
       if(building.level > 1){
         infoText = 'Downgrade ' + typeOfBuilding + ' building';
       }
-      this.setState({information: infoText});
+      this.setState({informationTitle: 'Downgrade', information: infoText});
     }
   }
 
   buildingHoverOut = (event) => {
     event.stopPropagation();
-    this.setState({information: null});
+    this.setState({informationTitle: null, information: null});
     if(this.state.errorCode){
       this.disableErrorCode();
     }
+  }
+
+  iconHoverIn = (event, typeOfIssue) => {
+    event.stopPropagation();
+    this.setState({informationTitle: icons_mappings_messages[typeOfIssue]['title'], information: icons_mappings_messages[typeOfIssue]['information']});
+  }
+
+  iconHoverOut = (event) => {
+    event.stopPropagation();
+    this.setState({informationTitle: null, information: null});
   }
 
   cycleFinished = () => {
@@ -933,6 +961,10 @@ class App extends Component {
       treesKeys: currentTreesKeys,
       treesKeysList: currentTreesKeysList
     });
+  }
+
+  setInformationTitle = (info_title) => {
+    this.setState({informationTitle: info_title});
   }
 
   setInformation = (info) => {
@@ -1085,6 +1117,8 @@ class App extends Component {
           errorCode={this.state.errorCode}
           disableErrorCode={this.disableErrorCode}
           population={this.state.population}
+          informationTitle={this.state.informationTitle}
+          setInformationTitle={this.setInformationTitle}
           information={this.state.information}
           setInformation={this.setInformation}
           cycleFinished={this.cycleFinished}
@@ -1151,6 +1185,9 @@ class App extends Component {
                 isPaused={this.state.isPaused}
                 buildingHoverIn={this.buildingHoverIn}
                 buildingHoverOut={this.buildingHoverOut}
+                waterAvailability={this.state.waterAvailability[pair[0]][pair[1]]}
+                iconHoverIn={this.iconHoverIn}
+                iconHoverOut={this.iconHoverOut}
               />
             )
           }

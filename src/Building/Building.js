@@ -4,6 +4,7 @@ import {a} from 'react-spring/three';
 import {tile_mappings_zones} from '../Mappings/MappingCodes';
 import {buildings_levels_codes} from '../Mappings/MappingBuildings';
 import * as THREE from 'three';
+import Icon from './Icon/Icon';
 
 const Building = ({
     position,
@@ -21,7 +22,10 @@ const Building = ({
     sewageMode,
     isPaused,
     buildingHoverIn,
-    buildingHoverOut}) => {
+    buildingHoverOut,
+    waterAvailability,
+    iconHoverIn,
+    iconHoverOut}) => {
     // position - based on matrices
     const mesh = useRef(null);
     const initial_position = [...position];
@@ -123,6 +127,16 @@ const Building = ({
                     ))}
                 </a.mesh>
         : null}
+        {!isPreBuild && buildingsShow && !waterAvailability && !sewageMode ? 
+            <Icon 
+                mapSize={mapSize}
+                height={2}
+                position={[position[0], 0 ,position[2]]}
+                type={1}
+                iconHoverIn={iconHoverIn}
+                iconHoverOut={iconHoverOut}
+            />
+        : null }
         </group>
         )
 }

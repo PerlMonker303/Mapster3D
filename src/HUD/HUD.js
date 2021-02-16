@@ -24,7 +24,7 @@ import icon_fast1 from '../assets/icons/icon_fast1.png';
 import icon_fast2 from '../assets/icons/icon_fast2.png';
 
 import {information_mappings_zones_codes} from '../Mappings/MappingInformation';
-import {tile_mappings_zones_codes_inverted} from '../Mappings/MappingCodes';
+import {tile_mappings_zones_codes, tile_mappings_zones_codes_inverted, tile_mappings_zones} from '../Mappings/MappingCodes';
 
 
 import './HUD.scss';
@@ -49,6 +49,8 @@ const HUD = ({
     errorCode,
     disableErrorCode,
     population,
+    informationTitle,
+    setInformationTitle,
     information,
     setInformation,
     cycleFinished}) => {
@@ -106,6 +108,7 @@ const HUD = ({
         }
         setCurrentTitle(information_mappings_zones_codes[icon].title);
         setCurrentInformation(information_mappings_zones_codes[icon].information);
+        setInformationTitle(null);
         setInformation(null);
     }
 
@@ -273,17 +276,24 @@ const HUD = ({
                 </section>
 
                 <section className={errorCode ? 'HUD_footer HUD_information_error' : 'HUD_footer'}>
-                    <label>{errorCode ? information_mappings_zones_codes[errorCode].title : 
-                    currentBuildingSelected === null ? currentTitle : 'Building'}</label>
+                    <label>
+                        {
+                            errorCode ? information_mappings_zones_codes[errorCode].title : 
+                            informationTitle ? informationTitle : 
+                            currentBuildingSelected === null ? currentTitle : 'Building'
+                        }
+                    </label>
 
                     {information ? (<p>{information}</p>) :
                     errorCode ? (<p>{information_mappings_zones_codes[errorCode].information}</p>) :
                     currentBuildingSelected === null ? (<p>{currentInformation}</p>) : (
                             <div className='HUD_information'>
-                                <label className='HUD_information_label'>{tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].charAt(0).toUpperCase() + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].slice(1)}</label>
+                                <label className={'HUD_information_label_' + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']]}
+                            >{tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].charAt(0).toUpperCase() + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].slice(1)}</label>
                                 <label className='HUD_information_label'>Level: {currentBuildingSelected['level']}</label>
                                 <label className='HUD_information_label'>Price: {currentBuildingSelected['price'].toString() + '$'}</label>
                                 {tile_mappings_zones_codes_inverted[currentBuildingSelected['type']] === 'residential' ? <label className='HUD_information_label'>Population: {currentBuildingSelected['residents']}</label>: null}
+                                <label className='HUD_information_label'>Water: {currentBuildingSelected['hasWater'] ? 'Yes' : 'No'}</label>
                             </div>                        
                     )}
                 </section>

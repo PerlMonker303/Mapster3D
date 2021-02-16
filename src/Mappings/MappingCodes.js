@@ -40,3 +40,18 @@ export const tile_mappings_textures_codes = {
     'shore': 13,
     'dirt': 14
 }
+
+export const icons_mappings_codes = {
+    'water': 1,
+}
+
+export const icons_mappings_colors = {
+    1: 'blue'
+}
+
+export const icons_mappings_messages = {
+    1: {
+        title: 'No water',
+        information: 'Make sure the building is connected to a pipe'
+    }
+}
