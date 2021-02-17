@@ -38,7 +38,7 @@ export const tile_mappings_textures_codes = {
     'road11': 11,
     'water': 12,
     'shore': 13,
-    'dirt': 14
+    'dirt': 14,
 }
 
 export const icons_mappings_codes = {

@@ -3,7 +3,7 @@ import {useSpring, a} from 'react-spring/three';
 
 import {tree_mappings} from '../../Mappings/MappingNature';
 
-const Tree = ({position, mapSize, type, removeTree}) => {
+const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
     const size_tree_square = [0.5,0.7,0.5];
     const size_tree_cone = [0.4,0.8,20];
     const size_tree_pyramid = [0.4,0.8,4];
@@ -83,7 +83,7 @@ const Tree = ({position, mapSize, type, removeTree}) => {
     return (
         <group 
             onContextMenu={(event) => removeTree(event, [position[0],position[2]])}
-            position={[position[0]-mapSize[0]/2 - size_tree_square[0], position[1]/2 ,position[2]-mapSize[1]/2 - size_tree_square[2]]}
+            position={[position[0]-mapSize[0]/2 - size_tree_square[0], position[1]/2 + elevationLevel ,position[2]-mapSize[1]/2 - size_tree_square[2]]}
         >
             {tree_mappings_components[type]}
         </group>

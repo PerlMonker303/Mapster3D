@@ -13,12 +13,14 @@ const Icon = ({mapSize, height, position, type, iconHoverIn, iconHoverOut}) => {
     const [direction, setDirection] = useState(1); // 1=up, 0=down
     const actual_position = [position[0]-mapSize[0]/2 - 0.5 + 1, 0,position[2]-mapSize[1]/2 - 0.5 + 1];
     useFrame(() => {
-        direction === 1 ? mesh.current.position.y += delta : mesh.current.position.y -= delta
-        mesh.current.rotation.y += delta;
-        if(mesh.current.position.y >= max_height){
-            setDirection(0);
-        }else if (mesh.current.position.y <= min_height){
-            setDirection(1);
+        if(mesh.current != null){
+            direction === 1 ? mesh.current.position.y += delta : mesh.current.position.y -= delta
+            mesh.current.rotation.y += delta;
+            if(mesh.current && mesh.current.position.y >= max_height){
+                setDirection(0);
+            }else if (mesh.current && mesh.current.position.y <= min_height){
+                setDirection(1);
+            }
         }
     });
 

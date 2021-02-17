@@ -10,6 +10,7 @@ import icon_pipe from '../assets/icons/icon_pipe.png';
 import icon_water from '../assets/icons/icon_water.png';
 import icon_shore from '../assets/icons/icon_shore.png';
 import icon_tree from '../assets/icons/icon_tree.png';
+import icon_elevate from '../assets/icons/icon_elevate.png';
 import icon_residential from '../assets/icons/icon_residential.png';
 import icon_commercial from '../assets/icons/icon_commercial.png';
 import icon_industry from '../assets/icons/icon_industry.png';
@@ -25,6 +26,7 @@ import icon_fast2 from '../assets/icons/icon_fast2.png';
 
 import {information_mappings_zones_codes} from '../Mappings/MappingInformation';
 import {tile_mappings_zones_codes, tile_mappings_zones_codes_inverted, tile_mappings_zones} from '../Mappings/MappingCodes';
+import {prices_expenses_and_revenues} from '../Mappings/MappingPrices';
 
 
 import './HUD.scss';
@@ -207,11 +209,20 @@ const HUD = ({
                     >
                         <img className='HUD_icon' src={icon_shore} alt='icon_shore'/>
                     </section>
+                </section>
+
+                <section className='HUD_section'>
                     <section className='HUD_button' onClick={() => changeSelectedOptionType('tree')}
                         onMouseEnter={() => iconMouseEnter('tree')} 
                         onMouseLeave={() => iconMouseLeave('tree')}
                     >
                         <img className='HUD_icon' src={icon_tree} alt='icon_tree'/>
+                    </section>
+                    <section className='HUD_button' onClick={() => changeSelectedOptionType('elevate')}
+                        onMouseEnter={() => iconMouseEnter('elevate')} 
+                        onMouseLeave={() => iconMouseLeave('elevate')}
+                    >
+                        <img className='HUD_icon' src={icon_elevate} alt='icon_elevate'/>
                     </section>
                 </section>
                 
@@ -292,7 +303,9 @@ const HUD = ({
                             >{tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].charAt(0).toUpperCase() + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].slice(1)}</label>
                                 <label className='HUD_information_label'>Level: {currentBuildingSelected['level']}</label>
                                 <label className='HUD_information_label'>Price: {currentBuildingSelected['price'].toString() + '$'}</label>
+                                <label className='HUD_information_label'> {tile_mappings_zones_codes_inverted[currentBuildingSelected['type']] === 'residential' ? 'Revenues:' : 'Expenses:'} {prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[currentBuildingSelected['type']]][currentBuildingSelected['level']]}$</label>
                                 {tile_mappings_zones_codes_inverted[currentBuildingSelected['type']] === 'residential' ? <label className='HUD_information_label'>Population: {currentBuildingSelected['residents']}</label>: null}
+                                {tile_mappings_zones_codes_inverted[currentBuildingSelected['type']] === 'industry' ? <label className='HUD_information_label'>Employment capacity: {currentBuildingSelected['residents']}</label>: null}
                                 <label className='HUD_information_label'>Water: {currentBuildingSelected['hasWater'] ? 'Yes' : 'No'}</label>
                             </div>                        
                     )}

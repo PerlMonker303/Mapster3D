@@ -15,11 +15,11 @@ import {prices_constructions, prices_expenses_and_revenues} from './Mappings/Map
 import {tree_mappings} from './Mappings/MappingNature';
 
 // TO DO: 
-// - fix icons height based on level of building
-// - add map margins
-// - add elevation
-// - happines/needs for residential areas (commercial, jobs from industry)
-// - show the needs through icons over buildings
+// - elevation: fix adding more elevations
+// - add pipes on cliffs
+// - add jobAvailability for residential houses with factories
+// - commercialAvailability again for residential buildings
+// - needs for residential areas (commercial, jobs from industry)
 // - add parks that improve happiness
 // - add more sprites (levels 3,4,5)
 // - create a road in 3D - with sidewalk and everything
@@ -32,8 +32,8 @@ import {tree_mappings} from './Mappings/MappingNature';
 class App extends Component {
   constructor(props) {
     super(props);
-    const n = 30;
-    const m = 28;
+    const n = 14;
+    const m = 14;
     const today = new Date();
     this.state = {
       mapSize: [n,m],
@@ -76,6 +76,8 @@ class App extends Component {
       information: null,
       expenses: 0,
       revenues: 0,
+      elevationLevels: Array(n).fill().map(()=>Array(m).fill(0)),
+      elevationOrientations: Array(n).fill().map(()=>Array(m).fill(0)),
     }
   }
 
@@ -135,6 +137,14 @@ class App extends Component {
         // deny road placement
         return;
       }
+      if(this.state.elevationOrientations[x][y] !== 0){
+        // deny road placement over cliffs
+        return;
+      }
+      if(this.state.tileMapTextures[x][y] > 0 && this.state.tileMapTextures[x][y] <= 11){
+        // deny road placement over other roads
+        return;
+      }
       if(this.state.trees[[x,y]]){
         // deny road placement over trees
         return;
@@ -147,8 +157,12 @@ class App extends Component {
       this.decreaseFunds(prices_constructions['road']);
     }
     else if(value === 12 || value === 13){
-      // deny water/shore tiles over trees
       if(this.state.trees[[x,y]]){
+        // deny water/shore tiles over trees
+        return;
+      }
+      if(this.state.elevationOrientations[x][y] !== 0){
+        // deny water/shore tiles over cliffs
         return;
       }
     }
@@ -174,8 +188,12 @@ class App extends Component {
       // restriction of not zoning on a road
       return;
     }
-    else if(this.state.tileMapTextures[x][y] === 12){
+    if(this.state.tileMapTextures[x][y] === 12){
       // restriction of not zoning on water
+      return;
+    }
+    if(this.state.elevationOrientations[x][y] !== 0){
+      // restriction of not zoning over cliffs
       return;
     }
     if(!this.neighborIsRoad([x,y])){
@@ -254,6 +272,10 @@ class App extends Component {
       if(value === -1){
         if(this.state.tileMapTextures[x][y] === 12 || this.state.tileMapTextures[x][y] === 13){
           // restriction of not placing trees on water/shore
+          return;
+        }
+        if(this.state.tileMapTextures[x][y] === 16){
+          // restriction of not placing trees on cliffs
           return;
         }
         let currentTrees = this.state.trees;
@@ -547,7 +569,7 @@ class App extends Component {
       'level': 1,
       'orientation': this.checkNearbyRoadDirection([x,y]),
       'price': prices_constructions[tile_mappings_zones_codes_inverted[type]][1],
-      'residents': type === 1 ? buildings_levels_codes[1]['residents'] : 0,
+      'residents': buildings_levels_codes[1]['residents'],
       'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false
     };
     currentPopulation += (type === 1 ? buildings_levels_codes[1]['residents'] : 0);
@@ -633,49 +655,18 @@ class App extends Component {
         let buildings = this.state.buildings;
         buildings[thisKey] = building;
         this.setState({buildings: buildings});
+      }else if(building['hasWater'] && this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 0){
+        building['hasWater'] = false;
+        let buildings = this.state.buildings;
+        buildings[thisKey] = building;
+        this.setState({buildings: buildings});
       }
       this.setState({currentBuildingSelected: building});
       
     }
     else if(this.state.selected_option_type === 'buldoze'){
       // destroy it
-      let currentBuiltBuildings = this.state.builtBuildings;
-      let currentBuildingKeys = this.state.buildingKeys; // dictionary
-      let currentBuildingKeysList = this.state.buildingKeysList; // list
-      let currentTileMapZones = this.state.tileMapZones; // zones
-      const building = this.state.buildings[thisKey];
-      let currentPopulation = this.state.population;
-      let currentRevenues = this.state.revenues;
-      let currentExpenses = this.state.expenses;
-
-      currentPopulation -= building['residents'];
-      const currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[building['type']]][building['level']];
-      
-      if(currentDelta > 0){
-        currentRevenues -= currentDelta;
-      }else{
-        currentExpenses -= currentDelta;
-      }
-
-      if(currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] === 0){
-        return;
-      }
-
-      currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
-      //currentBuildingKeys[thisKey] = undefined;
-      delete currentBuildingKeys[thisKey];
-      currentBuildingKeysList = currentBuildingKeysList.filter(key => key !== thisKey);
-      currentTileMapZones[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
-
-      this.setState({
-        builtBuildings: currentBuiltBuildings,
-        buildingKeys: currentBuildingKeys,
-        buildingKeysList: currentBuildingKeysList,
-        tileMapZones: currentTileMapZones,
-        population: currentPopulation,
-        revenues: currentRevenues,
-        expenses: currentExpenses
-      });
+      this.destroyBuilding(buildingCoordinates);
 
     }else if(this.state.selected_option_type === 'upgrade'){ 
       let currentBuildings = this.state.buildings;
@@ -769,6 +760,95 @@ class App extends Component {
       });
       this.buildingHoverIn(event, buildingCoordinates);
     }
+  }
+
+  destroyBuilding = (buildingCoordinates) => {
+    const thisKey = this.getKeyForCoordinates(buildingCoordinates, 'building');
+    let currentBuiltBuildings = this.state.builtBuildings;
+    let currentBuildingKeys = this.state.buildingKeys; // dictionary
+    let currentBuildingKeysList = this.state.buildingKeysList; // list
+    let currentTileMapZones = this.state.tileMapZones; // zones
+    const building = this.state.buildings[thisKey];
+    let currentPopulation = this.state.population;
+    let currentRevenues = this.state.revenues;
+    let currentExpenses = this.state.expenses;
+
+    currentPopulation -= building['residents'];
+    const currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[building['type']]][building['level']];
+    
+    if(currentDelta > 0){
+      currentRevenues -= currentDelta;
+    }else{
+      currentExpenses -= currentDelta;
+    }
+
+    if(currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] === 0){
+      return;
+    }
+
+    currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+    //currentBuildingKeys[thisKey] = undefined;
+    delete currentBuildingKeys[thisKey];
+    currentBuildingKeysList = currentBuildingKeysList.filter(key => key !== thisKey);
+    currentTileMapZones[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+
+    this.setState({
+      builtBuildings: currentBuiltBuildings,
+      buildingKeys: currentBuildingKeys,
+      buildingKeysList: currentBuildingKeysList,
+      tileMapZones: currentTileMapZones,
+      population: currentPopulation,
+      revenues: currentRevenues,
+      expenses: currentExpenses
+    });
+  }
+
+  destroyBuildings = (coordinates) => {
+
+    let currentBuiltBuildings = this.state.builtBuildings;
+    let currentBuildingKeys = this.state.buildingKeys; // dictionary
+    let currentBuildingKeysList = this.state.buildingKeysList; // list
+    let currentTileMapZones = this.state.tileMapZones; // zones
+    let currentPopulation = this.state.population;
+    let currentRevenues = this.state.revenues;
+    let currentExpenses = this.state.expenses;
+
+    for(var i=0;i<coordinates.length;i++){
+      const buildingCoordinates = coordinates[i];
+      const thisKey = this.getKeyForCoordinates(buildingCoordinates, 'building');
+      
+      const building = this.state.buildings[thisKey];
+
+      currentPopulation -= building['residents'];
+      const currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[building['type']]][building['level']];
+      
+      console.log(currentDelta);
+      if(currentDelta > 0){
+        currentRevenues -= currentDelta;
+      }else{
+        currentExpenses -= currentDelta;
+      }
+
+      if(currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] === 0){
+        return;
+      }
+
+      currentBuiltBuildings[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+      //currentBuildingKeys[thisKey] = undefined;
+      delete currentBuildingKeys[thisKey];
+      currentBuildingKeysList = currentBuildingKeysList.filter(key => key !== thisKey);
+      currentTileMapZones[buildingCoordinates[0]][buildingCoordinates[1]] = 0;
+    }
+
+    this.setState({
+      builtBuildings: currentBuiltBuildings,
+      buildingKeys: currentBuildingKeys,
+      buildingKeysList: currentBuildingKeysList,
+      tileMapZones: currentTileMapZones,
+      population: currentPopulation,
+      revenues: currentRevenues,
+      expenses: currentExpenses
+    });
   }
 
   saveFileApp = () => {
@@ -944,6 +1024,9 @@ class App extends Component {
 
   removeTree = (event, [x,y]) => {
     event.stopPropagation();
+    if(this.state.selected_option_type !== 'tree'){
+      return;
+    }
     const thisKey = this.getKeyForCoordinates([x,y], 'tree');
 
     let currentTrees = this.state.trees;
@@ -989,7 +1072,6 @@ class App extends Component {
       }
       currentWaterAvailability[x][y] = value;
     }else if(value === 0){
-      console.log(this.state.pipes);
       // removed a pipe
       let hasNeighbourPipe = false;
       if(x > 0){
@@ -1093,6 +1175,173 @@ class App extends Component {
 
     return result;
   }
+
+  increaseElevationLevel = ([x,y]) => {
+    let elevationLevels = this.state.elevationLevels;
+    console.log(elevationLevels[x][y]);
+    if(this.state.elevationOrientations[x][y] === 0){
+      elevationLevels[x][y] += 1;
+      this.setState({elevationLevels: elevationLevels});
+      this.updateNearbyElevations([x,y], elevationLevels[x][y], 'increase');
+    }else if(this.state.elevationOrientations[x][y] >= 1 && this.state.elevationOrientations[x][y] <= 4){
+      let elevationOrientations = this.state.elevationOrientations;
+      let tileMapTextures = this.state.tileMapTextures;
+      elevationOrientations[x][y] = 0;
+      tileMapTextures[x][y] = 0;
+      this.setState({elevationOrientations: elevationOrientations, tileMapTextures: tileMapTextures});
+      this.updateNearbyElevations([x,y], elevationLevels[x][y], 'increase');
+    }else if(this.state.elevationOrientations[x][y] >= 5 && this.state.elevationOrientations[x][y] <= 8){
+      // NOT YET
+      elevationLevels[x][y] += 1;
+      this.setState({elevationLevels: elevationLevels});
+      this.updateNearbyElevations([x,y], elevationLevels[x][y], 'increase');
+    }
+  }
+
+  decreaseElevationLevel = ([x,y]) => {
+    let elevationLevels = this.state.elevationLevels;
+    elevationLevels[x][y] -= 1;
+    this.setState({elevationLevels: elevationLevels});
+    this.updateNearbyElevations([x,y], elevationLevels[x][y], 'decrease');
+  }
+
+  updateNearbyElevations = ([x,y], level, type) => {
+    let elevationOrientations = this.state.elevationOrientations;
+    let tileMapTextures = this.state.tileMapTextures;
+    let buildingCoordinatesToDestroy = [];
+    let alreadyElevated = [];
+    // first check if nearby neighbours are elevated already
+    if(x > 0){
+      if(this.state.elevationLevels[x-1][y] === 1){
+        alreadyElevated.push([x-1,y]);
+      }
+    }
+    if(y > 0){
+      if(this.state.elevationLevels[x][y-1] === 1){
+        alreadyElevated.push([x,y-1]);
+      }
+    }
+    if(x < this.state.mapSize[0] - 1){
+      if(this.state.elevationLevels[x+1][y] === 1){
+        alreadyElevated.push([x+1,y]);
+      }
+    }
+    if(y < this.state.mapSize[1] - 1){
+      if(this.state.elevationLevels[x][y+1] === 1){
+        alreadyElevated.push([x,y+1]);
+      }
+    }
+
+    // check direct neighbours (left,right,top,bottom)
+    if(x > 0){
+      if(this.state.elevationLevels[x-1][y] === level - 1){ // level - 1
+        elevationOrientations[x-1][y] = 1;
+        tileMapTextures[x-1][y] = 16;
+        if(this.state.tileMapZones[x-1][y] !== 0){
+          buildingCoordinatesToDestroy.push([x-1,y]);
+        }
+      }else if(this.state.elevationLevels[x-1][y] === 0){ // level
+        // already elevated, so don't stop
+        if(type === 'increase'){
+          console.log("test");
+        }else{
+          elevationOrientations[x-1][y] = 0;
+          tileMapTextures[x-1][y] = 0;
+        }
+      }
+    }
+    if(y > 0){
+      if(this.state.elevationLevels[x][y-1] === level - 1){
+        elevationOrientations[x][y-1] = 2;
+        tileMapTextures[x][y-1] = 16;
+        // destroy existing building
+        if(this.state.tileMapZones[x][y-1] !== 0){
+          buildingCoordinatesToDestroy.push([x,y-1]);
+        }
+      }else if(this.state.elevationLevels[x][y-1] === level){
+        elevationOrientations[x][y-1] = 0;
+        tileMapTextures[x][y-1] = 0;
+      }
+    }
+    if(x < this.state.mapSize[0] - 1){
+      if(this.state.elevationLevels[x+1][y] === level - 1){
+        elevationOrientations[x+1][y] = 3;
+        tileMapTextures[x+1][y] = 16;
+        if(this.state.tileMapZones[x+1][y] !== 0){
+          buildingCoordinatesToDestroy.push([x+1,y]);
+        }
+      }else if(this.state.elevationLevels[x+1][y] === level){
+        elevationOrientations[x+1][y] = 0;
+        tileMapTextures[x+1][y] = 0;
+      }
+    }
+    if(y < this.state.mapSize[1] - 1){
+      if(this.state.elevationLevels[x][y+1] === level - 1){
+        elevationOrientations[x][y+1] = 4;
+        tileMapTextures[x][y+1] = 16;
+        if(this.state.tileMapZones[x][y+1] !== 0){
+          buildingCoordinatesToDestroy.push([x,y+1]);
+        }
+      }else if(this.state.elevationLevels[x][y+1] === level){
+        elevationOrientations[x][y+1] = 0;
+        tileMapTextures[x][y+1] = 0;
+      }
+    }
+    // then corner neighbours
+    if(x > 0 && y > 0){
+      if(this.state.elevationLevels[x-1][y-1] === level - 1){
+        elevationOrientations[x-1][y-1] = 5;
+        tileMapTextures[x-1][y-1] = 16;
+        if(this.state.tileMapZones[x-1][y-1] !== 0){
+          buildingCoordinatesToDestroy.push([x-1,y-1]);
+        }
+      }else if(this.state.elevationLevels[x-1][y-1] === level){
+        console.log(x,y);
+        elevationOrientations[x-1][y-1] = 0;
+        tileMapTextures[x-1][y-1] = 0;
+      }
+    }
+    if(x < this.state.mapSize[0] - 1 && y > 0){
+      if(this.state.elevationLevels[x+1][y-1] === level - 1){
+        elevationOrientations[x+1][y-1] = 6;
+        tileMapTextures[x+1][y-1] = 16;
+        if(this.state.tileMapZones[x+1][y-1] !== 0){
+          buildingCoordinatesToDestroy.push([x+1,y-1]);
+        }
+      }else if(this.state.elevationLevels[x+1][y-1] === level){
+        elevationOrientations[x+1][y-1] = 0;
+        tileMapTextures[x+1][y-1] = 0;
+      }
+    }
+    if(x > 0 && y < this.state.mapSize[1] - 1){
+      if(this.state.elevationLevels[x-1][y+1] === level - 1){
+        elevationOrientations[x-1][y+1] = 7;
+        tileMapTextures[x-1][y+1] = 16;
+        if(this.state.tileMapZones[x-1][y+1] !== 0){
+          buildingCoordinatesToDestroy.push([x-1,y+1]);
+        }
+      }else if(this.state.elevationLevels[x-1][y+1] === level){
+        elevationOrientations[x-1][y+1] = 0;
+        tileMapTextures[x-1][y+1] = 0;
+      }
+    }
+    if(x < this.state.mapSize[0] - 1 && y < this.state.mapSize[1] - 1){
+      if(this.state.elevationLevels[x+1][y+1] === level - 1){
+        elevationOrientations[x+1][y+1] = 8;
+        tileMapTextures[x+1][y+1] = 16;
+        if(this.state.tileMapZones[x+1][y+1] !== 0){
+          buildingCoordinatesToDestroy.push([x+1,y+1]);
+        }
+      }else if(this.state.elevationLevels[x+1][y+1] === level){
+        elevationOrientations[x+1][y+1] = 0;
+        tileMapTextures[x+1][y+1] = 0;
+      }
+    }
+    console.log(elevationOrientations);
+    this.setState({elevationOrientations: elevationOrientations, tileMapTextures: tileMapTextures});
+    this.destroyBuildings(buildingCoordinatesToDestroy);
+  }
+
   
   render(){
   return (
@@ -1149,7 +1398,9 @@ class App extends Component {
           position={[0,0,0]} 
           size={this.state.mapSize}
           removePipe={this.removePipe}
-          removeTree={this.removeTree}/>
+          removeTree={this.removeTree}
+          increaseElevationLevel={this.increaseElevationLevel}
+          decreaseElevationLevel={this.decreaseElevationLevel}/>
 
         {//<Sky mapSize={this.state.mapSize} levelBoundaries={[10,15]} cloudsCount={10}/>
         }
@@ -1188,6 +1439,7 @@ class App extends Component {
                 waterAvailability={this.state.waterAvailability[pair[0]][pair[1]]}
                 iconHoverIn={this.iconHoverIn}
                 iconHoverOut={this.iconHoverOut}
+                elevationLevel={this.state.elevationLevels[pair[0]][pair[1]]}
               />
             )
           }

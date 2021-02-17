@@ -25,7 +25,8 @@ const Building = ({
     buildingHoverOut,
     waterAvailability,
     iconHoverIn,
-    iconHoverOut}) => {
+    iconHoverOut,
+    elevationLevel}) => {
     // position - based on matrices
     const mesh = useRef(null);
     const initial_position = [...position];
@@ -81,12 +82,11 @@ const Building = ({
                 setPreBuild(false);
                 if(mesh.current){
                     mesh.current.scale.y = 0;
-                    mesh.current.position.y = 0;
+                    mesh.current.position.y = elevationLevel;
                 }
             }, 2000);
         }else{
             if(!isBuilt){
-                
                 if(mesh.current && mesh.current.scale.y < 1){
                     
                     mesh.current.scale.y += 0.01;
@@ -97,7 +97,7 @@ const Building = ({
             }else{
                 if(mesh.current){
                     mesh.current.scale.y = 1;
-                    mesh.current.position.y = size[1]/2;
+                    mesh.current.position.y = size[1]/2 + elevationLevel;
                 }
             }
         }
@@ -109,7 +109,7 @@ const Building = ({
                 <a.mesh 
                     castShadow 
                     position={
-                        [position[0]-mapSize[0]/2 - size[0]/2 + 1, position[1]/2 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+                        [position[0]-mapSize[0]/2 - size[0]/2 + 1, position[1]/2,position[2]-mapSize[1]/2 - size[2]/2 + 1]
                     } 
                     ref={mesh} // ORDER: FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT
                     onClick={(event) => clickHandlerBuilding(event, [initial_position[0],initial_position[2],type])}
@@ -130,7 +130,7 @@ const Building = ({
         {!isPreBuild && buildingsShow && !waterAvailability && !sewageMode ? 
             <Icon 
                 mapSize={mapSize}
-                height={2}
+                height={actual_size[1] + 0.75 + elevationLevel}
                 position={[position[0], 0 ,position[2]]}
                 type={1}
                 iconHoverIn={iconHoverIn}

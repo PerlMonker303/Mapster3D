@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 
 const Grid = ({size}) => {
     let [n, m] = size;
@@ -11,13 +11,11 @@ const Grid = ({size}) => {
       values_m.push(j);
     }
   
-    const [visible, setVisible] = useState(false);
-  
     return (
       <group>
         {
           values_m.map((item, i) => 
-          <mesh key={i} position={[0,0,item]}>
+          <mesh key={i} position={[0,0.01,item]}>
             <boxBufferGeometry attach='geometry' args={[n,0.01,0.01]} />
             <meshStandardMaterial attach='material' color='red'/>
           </mesh>
@@ -25,7 +23,7 @@ const Grid = ({size}) => {
         }
         {
           values_n.map((item, i) => 
-          <mesh key={i} position={[item,0,0]}>
+          <mesh key={i} position={[item,0.01,0]}>
             <boxBufferGeometry attach='geometry' args={[0.01,0.01,m]} />
             <meshStandardMaterial attach='material' color='red'/>
           </mesh>

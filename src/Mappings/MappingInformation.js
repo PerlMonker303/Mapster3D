@@ -1,4 +1,4 @@
-import {prices_constructions} from './MappingPrices';
+import {prices_constructions, prices_expenses_and_revenues} from './MappingPrices';
 
 
 export const information_mappings_zones_codes = {
@@ -42,17 +42,21 @@ export const information_mappings_zones_codes = {
         title: 'Tree',
         information: 'Place trees of different sizes'
     },
+    'elevate':{
+        title: 'Elevate terrain',
+        information: 'Increase the terrain level'
+    },
     'residential': {
         title: 'Residential area',
-        information: 'Construct residential area buildings (houses, apartments,flats) \nPrice: ' + prices_constructions['residential'][1] + '$'
+        information: 'Construct residential area buildings (houses, apartments,flats) \nPrice: ' + prices_constructions['residential'][1] + '$\nRevenues: ' + prices_expenses_and_revenues['residential'][1] + '$'
     },
     'commercial': {
         title: 'Commercial area',
-        information: 'Construct commercial zones (shops) \nPrice: ' + prices_constructions['commercial'][1] + '$'
+        information: 'Construct commercial zones (shops) \nPrice: ' + prices_constructions['commercial'][1] + '$\nExpenses: ' + prices_expenses_and_revenues['commercial'][1] + '$'
     },
     'industry': {
         title: 'Industry area',
-        information: 'Construct industrial zones (factories, offices) \nPrice: ' +  + prices_constructions['industry'][1] + '$'
+        information: 'Construct industrial zones (factories, offices, farms) \nPrice: ' +  + prices_constructions['industry'][1] + '$\nExpenses: ' + prices_expenses_and_revenues['industry'][1] + '$'
     },
     'upgrade': {
         title: 'Upgrade',

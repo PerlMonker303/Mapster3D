@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useLoader} from "react-three-fiber";
 import * as THREE from 'three';
 
@@ -21,11 +21,30 @@ import TextureWater1 from '../assets/water/Water1.png';
 import TextureShore1 from '../assets/shore/Shore1.png';
 import TextureDirt1 from '../assets/dirt/Dirt1.png';
 import TextureDirt2 from '../assets/dirt/Dirt2.png';
+import TextureDirt3 from '../assets/dirt/Dirt3.png';
 
-const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture, setTileMapZone, setTileMapObject, selected_option_type, sewageMode, waterAvailability}) => {
-    const size = [1,1];
+const Tile = ({
+    type,
+    position, 
+    tileMapZones,
+    tileMapTextures, 
+    setTileMapTexture, 
+    setTileMapZone, 
+    setTileMapObject, 
+    selected_option_type, 
+    sewageMode, 
+    waterAvailability, 
+    elevationLevel, 
+    maxElevationLevel, 
+    minElevationLevel, 
+    increaseElevationLevel, 
+    decreaseElevationLevel,
+    elevationOrientations}) => {
+    const size = [1,1,0.01];
     const actual_position = position.map(pos => pos - 0.5);
-    actual_position[1] = 0.001;
+    const [elevation, setElevation] = useState(elevationLevel);
+
+    actual_position[1] = 0.001 + elevation;
   
     const textureGrass1 = useLoader(THREE.TextureLoader, TextureGrass1);
     const textureRoad1 = useLoader(THREE.TextureLoader, TextureRoad1);
@@ -43,6 +62,7 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
     const textureShore1 = useLoader(THREE.TextureLoader, TextureShore1);
     const textureDirt1 = useLoader(THREE.TextureLoader, TextureDirt1);
     const textureDirt2 = useLoader(THREE.TextureLoader, TextureDirt2);
+    const textureDirt3 = useLoader(THREE.TextureLoader, TextureDirt3);
 
     const tile_mappings_textures = {
         0: textureGrass1,
@@ -60,35 +80,88 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
         12: textureWater1,
         13: textureShore1,
         14: textureDirt1,
-        15: textureDirt2
+        15: textureDirt2,
+        16: textureDirt3
     }
 
     let rows = tileMapZones.length;
     let cols = tileMapZones[0].length;
     let position_row = position[0] + Math.floor(rows/2)-1;
     let position_col = position[2] + Math.floor(cols/2)-1;
+
+    const elevation_mappings_rotation = {
+        0: [-Math.PI / 2, 0, 0],
+        1: [ 0, 0, -Math.PI / 4],
+        2: [ Math.PI / 4, 3.14, 3.14],
+        3: [ 0, 0, Math.PI / 4],
+        4: [-Math.PI / 4, 0, 0],
+        5: [0, -Math.PI / 4, -0.26],
+        6: [0, Math.PI / 4, 0.26],
+        7: [0, Math.PI / 4, -0.24],
+        8: [0, -Math.PI / 4, 0.26],
+    }
+
+    const elevation_mappings_position = {
+        0: actual_position,
+        1: [actual_position[0]-0.29,actual_position[1]+0.2,actual_position[2]],
+        2: [actual_position[0],actual_position[1]+0.2,actual_position[2]-0.29],
+        3: [actual_position[0]+0.29,actual_position[1]+0.2,actual_position[2]],
+        4: [actual_position[0],actual_position[1]+0.2,actual_position[2]+0.29],
+        5: [actual_position[0]+0.29,actual_position[1]-0.22,actual_position[2]+0.29],
+        6: [actual_position[0]-0.29,actual_position[1]-0.22,actual_position[2]+0.29],
+        7: [actual_position[0]+0.29,actual_position[1]-0.22,actual_position[2]-0.29],
+        8: [actual_position[0]-0.29,actual_position[1]-0.22,actual_position[2]-0.29]
+    }
+
+    const elevation_mappings_size = {
+        0: size,
+        1: [0.01,size[0] + 1.25,size[1]],
+        2: [size[0],size[1]+1.25,0.01],
+        3: [0.01,size[0]+1.25,size[1]],
+        4: [size[0],size[1]+1.25,0.01],
+        5: [1.27,0],
+        6: [1.27,0],
+        7: [1.27,0],
+        8: [1.27,0]
+    }
   
     return (
         <group>
-            <mesh onClick={() => { // left click
+            {elevationOrientations[position_row][position_col] >= 0 && elevationOrientations[position_row][position_col] <= 4 ?
+            <mesh onClick={(event) => { // left click
+                event.stopPropagation();
                 if(tile_mappings_zones_codes[type] && type !== 'buldoze'){
                     setTileMapZone([position_row, position_col], tile_mappings_zones_codes[type]);
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], tile_mappings_textures_codes[type], tile_mappings_textures);
                 }else if(selected_option_type === 'pipe' || selected_option_type === 'tree'){
                     setTileMapObject([position_row, position_col]);
+                }else if(type === 'elevate'){
+                    if(elevation < maxElevationLevel){
+                        setElevation(elevation + 1);
+                        increaseElevationLevel([position_row, position_col]);
+                    }
                 }
             
-            }} receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={actual_position}
-            onContextMenu={() => { // right click
+            }} 
+            receiveShadow 
+            rotation={elevation_mappings_rotation[elevationOrientations[position_row][position_col]]} 
+            position={elevation_mappings_position[elevationOrientations[position_row][position_col]]}
+            onContextMenu={(event) => { // right click
+                event.stopPropagation();
                 if(tile_mappings_zones_codes[type]){
                     setTileMapZone([position_row, position_col], 0);
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], 0);
+                }else if(type === 'elevate'){
+                    if(elevation > minElevationLevel){
+                        setElevation(elevation - 1);
+                        decreaseElevationLevel([position_row, position_col]);
+                    }
                 }
             }}
             >
-                <planeBufferGeometry attach='geometry' args={size}/>
+                <boxBufferGeometry attach='geometry' args={elevation_mappings_size[elevationOrientations[position_row][position_col]]}/>
                 <meshStandardMaterial 
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
                         sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
@@ -96,7 +169,31 @@ const Tile = ({type, position, tileMapZones, tileMapTextures, setTileMapTexture,
                     color={tile_mappings_zones[tileMapZones[position_row][position_col]]}
                 />
             </mesh>
+            : 
+            <mesh
+                onClick={(event) => { // left click
+                    event.stopPropagation();
+                    console.log("asd");
+                }}
+                receiveShadow
+                rotation={elevation_mappings_rotation[elevationOrientations[position_row][position_col]]} 
+                position={elevation_mappings_position[elevationOrientations[position_row][position_col]]}
+            >
+                <octahedronGeometry 
+                    attach="geometry"
+                    args={elevation_mappings_size[elevationOrientations[position_row][position_col]]}
+                />
+                <meshStandardMaterial 
+                    map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
+                        sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
+                    attach='material'
+                    color={tile_mappings_zones[tileMapZones[position_row][position_col]]}
+                    side={THREE.DoubleSide}
+                />
+            </mesh>
+            }
         </group>
+        
     )
   }
 

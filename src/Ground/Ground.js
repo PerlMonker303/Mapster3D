@@ -13,7 +13,12 @@ const Ground = ({
     position,
     size,
     removePipe,
-    removeTree}) => {
+    removeTree,
+    increaseElevationLevel,
+    decreaseElevationLevel}) => {
+
+    const maxElevationLevel = 1;
+    const minElevationLevel = 0;
 
     let [n, m] = size;
     let pairs = [];
@@ -47,6 +52,12 @@ const Ground = ({
               selected_option_type={state.selected_option_type}
               sewageMode={state.sewageMode}
               waterAvailability={state.waterAvailability}
+              elevationLevel={0}
+              maxElevationLevel={maxElevationLevel}
+              minElevationLevel={minElevationLevel}
+              increaseElevationLevel={increaseElevationLevel}
+              decreaseElevationLevel={decreaseElevationLevel}
+              elevationOrientations={state.elevationOrientations}
               />
           )
         }
@@ -77,6 +88,7 @@ const Ground = ({
               mapSize={state.mapSize}
               type={tree_mappings[tree[2]]}
               removeTree={removeTree}
+              elevationLevel={state.elevationLevels[tree[0]][tree[1]]}
             />
             )
           }
