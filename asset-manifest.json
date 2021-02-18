@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/Mapster3D/static/css/main.92c9f0be.chunk.css",
+    "main.js": "/Mapster3D/static/js/main.bc71c88c.chunk.js",
+    "main.js.map": "/Mapster3D/static/js/main.bc71c88c.chunk.js.map",
+    "runtime-main.js": "/Mapster3D/static/js/runtime-main.cbe25c9a.js",
+    "runtime-main.js.map": "/Mapster3D/static/js/runtime-main.cbe25c9a.js.map",
+    "static/js/2.bd953a56.chunk.js": "/Mapster3D/static/js/2.bd953a56.chunk.js",
+    "static/js/2.bd953a56.chunk.js.map": "/Mapster3D/static/js/2.bd953a56.chunk.js.map",
+    "static/js/3.783895dc.chunk.js": "/Mapster3D/static/js/3.783895dc.chunk.js",
+    "static/js/3.783895dc.chunk.js.map": "/Mapster3D/static/js/3.783895dc.chunk.js.map",
+    "index.html": "/Mapster3D/index.html",
+    "static/css/main.92c9f0be.chunk.css.map": "/Mapster3D/static/css/main.92c9f0be.chunk.css.map",
+    "static/js/2.bd953a56.chunk.js.LICENSE.txt": "/Mapster3D/static/js/2.bd953a56.chunk.js.LICENSE.txt",
+    "static/media/b_com_top_lvl1_1.2bf7994e.png": "/Mapster3D/static/media/b_com_top_lvl1_1.2bf7994e.png",
+    "static/media/b_ind_top_lvl1_1.2bf7994e.png": "/Mapster3D/static/media/b_ind_top_lvl1_1.2bf7994e.png",
+    "static/media/b_res_top_lvl1_1.2bf7994e.png": "/Mapster3D/static/media/b_res_top_lvl1_1.2bf7994e.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.cbe25c9a.js",
+    "static/js/2.bd953a56.chunk.js",
+    "static/css/main.92c9f0be.chunk.css",
+    "static/js/main.bc71c88c.chunk.js"
+  ]
+}
