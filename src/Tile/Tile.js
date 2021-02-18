@@ -173,7 +173,6 @@ const Tile = ({
             <mesh
                 onClick={(event) => { // left click
                     event.stopPropagation();
-                    console.log("asd");
                 }}
                 receiveShadow
                 rotation={elevation_mappings_rotation[elevationOrientations[position_row][position_col]]} 

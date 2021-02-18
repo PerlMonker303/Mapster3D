@@ -15,7 +15,6 @@ import {prices_constructions, prices_expenses_and_revenues} from './Mappings/Map
 import {tree_mappings} from './Mappings/MappingNature';
 
 // TO DO: 
-// - elevation: fix adding more elevations
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
 // - commercialAvailability again for residential buildings
@@ -25,6 +24,8 @@ import {tree_mappings} from './Mappings/MappingNature';
 // - create a road in 3D - with sidewalk and everything
 
 // BUGS:
+// - inverted road on cliff
+// - loading elevations
 // - load save and orient buildings
 // - fix clouds
 // - map size must be odd numbers
@@ -139,7 +140,7 @@ class App extends Component {
       }
       if(this.state.elevationOrientations[x][y] !== 0){
         // deny road placement over cliffs
-        return;
+        //return;
       }
       if(this.state.tileMapTextures[x][y] > 0 && this.state.tileMapTextures[x][y] <= 11){
         // deny road placement over other roads
@@ -164,6 +165,13 @@ class App extends Component {
       if(this.state.elevationOrientations[x][y] !== 0){
         // deny water/shore tiles over cliffs
         return;
+      }
+    }
+
+    if(value === 0){
+      // default to cliff if removing from cliff
+      if(this.state.elevationOrientations[x][y] !== 0){
+        value = 16;
       }
     }
 
@@ -1178,9 +1186,8 @@ class App extends Component {
 
   increaseElevationLevel = ([x,y]) => {
     let elevationLevels = this.state.elevationLevels;
-    console.log(elevationLevels[x][y]);
     if(this.state.elevationOrientations[x][y] === 0){
-      elevationLevels[x][y] += 1;
+      elevationLevels[x][y] = 1;
       this.setState({elevationLevels: elevationLevels});
       this.updateNearbyElevations([x,y], elevationLevels[x][y], 'increase');
     }else if(this.state.elevationOrientations[x][y] >= 1 && this.state.elevationOrientations[x][y] <= 4){
@@ -1188,11 +1195,11 @@ class App extends Component {
       let tileMapTextures = this.state.tileMapTextures;
       elevationOrientations[x][y] = 0;
       tileMapTextures[x][y] = 0;
-      this.setState({elevationOrientations: elevationOrientations, tileMapTextures: tileMapTextures});
+      elevationLevels[x][y] = 1;
+      this.setState({elevationOrientations: elevationOrientations, tileMapTextures: tileMapTextures, elevationLevels: elevationLevels});
       this.updateNearbyElevations([x,y], elevationLevels[x][y], 'increase');
     }else if(this.state.elevationOrientations[x][y] >= 5 && this.state.elevationOrientations[x][y] <= 8){
-      // NOT YET
-      elevationLevels[x][y] += 1;
+      elevationLevels[x][y] = 1;
       this.setState({elevationLevels: elevationLevels});
       this.updateNearbyElevations([x,y], elevationLevels[x][y], 'increase');
     }
@@ -1209,28 +1216,6 @@ class App extends Component {
     let elevationOrientations = this.state.elevationOrientations;
     let tileMapTextures = this.state.tileMapTextures;
     let buildingCoordinatesToDestroy = [];
-    let alreadyElevated = [];
-    // first check if nearby neighbours are elevated already
-    if(x > 0){
-      if(this.state.elevationLevels[x-1][y] === 1){
-        alreadyElevated.push([x-1,y]);
-      }
-    }
-    if(y > 0){
-      if(this.state.elevationLevels[x][y-1] === 1){
-        alreadyElevated.push([x,y-1]);
-      }
-    }
-    if(x < this.state.mapSize[0] - 1){
-      if(this.state.elevationLevels[x+1][y] === 1){
-        alreadyElevated.push([x+1,y]);
-      }
-    }
-    if(y < this.state.mapSize[1] - 1){
-      if(this.state.elevationLevels[x][y+1] === 1){
-        alreadyElevated.push([x,y+1]);
-      }
-    }
 
     // check direct neighbours (left,right,top,bottom)
     if(x > 0){
@@ -1243,7 +1228,9 @@ class App extends Component {
       }else if(this.state.elevationLevels[x-1][y] === 0){ // level
         // already elevated, so don't stop
         if(type === 'increase'){
-          console.log("test");
+          if(elevationOrientations[x-1][y] === 7 || elevationOrientations[x-1][y] === 5){
+            elevationOrientations[x-1][y] = 1;
+          }
         }else{
           elevationOrientations[x-1][y] = 0;
           tileMapTextures[x-1][y] = 0;
@@ -1254,13 +1241,19 @@ class App extends Component {
       if(this.state.elevationLevels[x][y-1] === level - 1){
         elevationOrientations[x][y-1] = 2;
         tileMapTextures[x][y-1] = 16;
-        // destroy existing building
         if(this.state.tileMapZones[x][y-1] !== 0){
           buildingCoordinatesToDestroy.push([x,y-1]);
         }
       }else if(this.state.elevationLevels[x][y-1] === level){
-        elevationOrientations[x][y-1] = 0;
-        tileMapTextures[x][y-1] = 0;
+        if(type === 'increase'){
+          if(elevationOrientations[x][y-1] === 0 && this.state.elevationLevels[x][y-1] === 0){
+            elevationOrientations[x][y-1] = 2;
+            tileMapTextures[x][y-1] = 16;
+          }
+        }else{
+          elevationOrientations[x][y-1] = 0;
+          tileMapTextures[x][y-1] = 0;
+        }
       }
     }
     if(x < this.state.mapSize[0] - 1){
@@ -1271,8 +1264,14 @@ class App extends Component {
           buildingCoordinatesToDestroy.push([x+1,y]);
         }
       }else if(this.state.elevationLevels[x+1][y] === level){
-        elevationOrientations[x+1][y] = 0;
-        tileMapTextures[x+1][y] = 0;
+        if(type === 'increase'){
+          if(elevationOrientations[x+1][y] === 8 || elevationOrientations[x+1][y] === 6){
+            elevationOrientations[x+1][y] = 3;
+          }
+        }else{
+          elevationOrientations[x+1][y] = 0;
+          tileMapTextures[x+1][y] = 0;
+        }
       }
     }
     if(y < this.state.mapSize[1] - 1){
@@ -1283,61 +1282,118 @@ class App extends Component {
           buildingCoordinatesToDestroy.push([x,y+1]);
         }
       }else if(this.state.elevationLevels[x][y+1] === level){
-        elevationOrientations[x][y+1] = 0;
-        tileMapTextures[x][y+1] = 0;
+        if(type === 'increase'){
+          if(elevationOrientations[x][y+1] === 0 && this.state.elevationLevels[x][y+1] === 0){
+            elevationOrientations[x][y+1] = 4;
+            tileMapTextures[x][y+1] = 16;
+          }
+        }else{
+          elevationOrientations[x][y+1] = 0;
+          tileMapTextures[x][y+1] = 0;
+        }
       }
     }
     // then corner neighbours
     if(x > 0 && y > 0){
-      if(this.state.elevationLevels[x-1][y-1] === level - 1){
-        elevationOrientations[x-1][y-1] = 5;
-        tileMapTextures[x-1][y-1] = 16;
+      if(this.state.elevationLevels[x-1][y-1] === 1){
+        if(elevationOrientations[x-1][y-1] === 0){
+
+        }else{
+          elevationOrientations[x-1][y-1] = 5;
+          tileMapTextures[x-1][y-1] = 16;
+        }
         if(this.state.tileMapZones[x-1][y-1] !== 0){
           buildingCoordinatesToDestroy.push([x-1,y-1]);
         }
-      }else if(this.state.elevationLevels[x-1][y-1] === level){
-        console.log(x,y);
-        elevationOrientations[x-1][y-1] = 0;
-        tileMapTextures[x-1][y-1] = 0;
+      }else if(this.state.elevationLevels[x-1][y-1] === 0){
+        if(type === 'increase'){
+          if(elevationOrientations[x-1][y-1] >= 1 && elevationOrientations[x-1][y-1] <= 4){
+
+          }else{
+            elevationOrientations[x-1][y-1] = 5;
+            tileMapTextures[x-1][y-1] = 16;
+          }
+        }else{
+          elevationOrientations[x-1][y-1] = 0;
+          tileMapTextures[x-1][y-1] = 0;
+        }
       }
     }
     if(x < this.state.mapSize[0] - 1 && y > 0){
-      if(this.state.elevationLevels[x+1][y-1] === level - 1){
-        elevationOrientations[x+1][y-1] = 6;
-        tileMapTextures[x+1][y-1] = 16;
+      if(this.state.elevationLevels[x+1][y-1] === 1){
+        if(elevationOrientations[x+1][y-1] === 0){
+
+        }else{
+          elevationOrientations[x+1][y-1] = 6;
+          tileMapTextures[x+1][y-1] = 16;
+        }
         if(this.state.tileMapZones[x+1][y-1] !== 0){
           buildingCoordinatesToDestroy.push([x+1,y-1]);
         }
-      }else if(this.state.elevationLevels[x+1][y-1] === level){
-        elevationOrientations[x+1][y-1] = 0;
-        tileMapTextures[x+1][y-1] = 0;
+      }else if(this.state.elevationLevels[x+1][y-1] === 0){
+        if(type === 'increase'){
+          if(elevationOrientations[x+1][y-1] >= 1 && elevationOrientations[x+1][y-1] <= 4){
+
+          }else{
+            elevationOrientations[x+1][y-1] = 6;
+            tileMapTextures[x+1][y-1] = 16;
+          }
+        }else{
+          elevationOrientations[x+1][y-1] = 0;
+          tileMapTextures[x+1][y-1] = 0;
+        }
       }
     }
     if(x > 0 && y < this.state.mapSize[1] - 1){
-      if(this.state.elevationLevels[x-1][y+1] === level - 1){
-        elevationOrientations[x-1][y+1] = 7;
-        tileMapTextures[x-1][y+1] = 16;
+      if(this.state.elevationLevels[x-1][y+1] === 1){
+        if(elevationOrientations[x-1][y+1] === 0){
+
+        }else{
+          elevationOrientations[x-1][y+1] = 7;
+          tileMapTextures[x-1][y+1] = 16;
+        }
         if(this.state.tileMapZones[x-1][y+1] !== 0){
           buildingCoordinatesToDestroy.push([x-1,y+1]);
         }
-      }else if(this.state.elevationLevels[x-1][y+1] === level){
-        elevationOrientations[x-1][y+1] = 0;
-        tileMapTextures[x-1][y+1] = 0;
+      }else if(this.state.elevationLevels[x-1][y+1] === 0){
+        if(type === 'increase'){
+          if(elevationOrientations[x-1][y+1] >= 1 && elevationOrientations[x-1][y+1] <= 4){
+
+          }else{
+            elevationOrientations[x-1][y+1] = 7;
+            tileMapTextures[x-1][y+1] = 16;
+          }
+        }else{
+          elevationOrientations[x-1][y+1] = 0;
+          tileMapTextures[x-1][y+1] = 0;
+        }
       }
     }
     if(x < this.state.mapSize[0] - 1 && y < this.state.mapSize[1] - 1){
-      if(this.state.elevationLevels[x+1][y+1] === level - 1){
-        elevationOrientations[x+1][y+1] = 8;
-        tileMapTextures[x+1][y+1] = 16;
+      if(this.state.elevationLevels[x+1][y+1] === 1){
+        if(elevationOrientations[x+1][y+1] === 0){
+
+        }else{
+          elevationOrientations[x+1][y+1] = 8;
+          tileMapTextures[x+1][y+1] = 16;
+        }
         if(this.state.tileMapZones[x+1][y+1] !== 0){
           buildingCoordinatesToDestroy.push([x+1,y+1]);
         }
-      }else if(this.state.elevationLevels[x+1][y+1] === level){
-        elevationOrientations[x+1][y+1] = 0;
-        tileMapTextures[x+1][y+1] = 0;
+      }else if(this.state.elevationLevels[x+1][y+1] === 0){
+        if(type === 'increase'){
+          if(elevationOrientations[x+1][y+1] >= 1 && elevationOrientations[x+1][y+1] <= 4){
+
+          }else{
+            elevationOrientations[x+1][y+1] = 8;
+            tileMapTextures[x+1][y+1] = 16;
+          }
+        }else{
+          elevationOrientations[x+1][y+1] = 0;
+          tileMapTextures[x+1][y+1] = 0;
+        }
       }
     }
-    console.log(elevationOrientations);
     this.setState({elevationOrientations: elevationOrientations, tileMapTextures: tileMapTextures});
     this.destroyBuildings(buildingCoordinatesToDestroy);
   }

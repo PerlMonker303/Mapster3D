@@ -48,3 +48,7 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 <h3>15.02.2021</h3>
 
 ![Image 7](pic7.png)
+
+<h3>18.02.2021</h3>
+
+![Image 8](pic8.png)

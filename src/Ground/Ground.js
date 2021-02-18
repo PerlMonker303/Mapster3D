@@ -1,4 +1,4 @@
-import React, {Suspense} from 'react';
+import React, {Suspense, useState, useEffect} from 'react';
 import Grid from '../Grid/Grid';
 import Tile from '../Tile/Tile';
 import Pipe from './Pipes/Pipe';
@@ -22,11 +22,19 @@ const Ground = ({
 
     let [n, m] = size;
     let pairs = [];
+    let indexes = [];
     for(var i=-n/2+1;i<=n/2;i++){
       for(var j=-m/2+1;j<=m/2;j++){
         pairs.push([i,j]);
+        indexes.push([i + n/2, j + n/2]);
       }
     }
+
+    const [elevationLevels, setElevationLevels] = useState(null);
+
+    useEffect(() => {
+      setElevationLevels(state.elevationLevels);
+    }, state.elevationLevels)
   
     return (
       <group>
@@ -52,7 +60,7 @@ const Ground = ({
               selected_option_type={state.selected_option_type}
               sewageMode={state.sewageMode}
               waterAvailability={state.waterAvailability}
-              elevationLevel={0}
+              elevationLevel={pairs === [] || pairs === null || elevationLevels === null ? 0 : elevationLevels[parseInt(pairs[0]) + 10][parseInt(pairs[1]) + 10]}
               maxElevationLevel={maxElevationLevel}
               minElevationLevel={minElevationLevel}
               increaseElevationLevel={increaseElevationLevel}
@@ -73,6 +81,7 @@ const Ground = ({
                 tileMapObjects={state.tileMapObjects}
                 sewageMode={state.sewageMode}
                 removePipe={removePipe}
+                elevationLevel={state.elevationLevels[pipe[0]][pipe[1]]}
               />
             )
           }
