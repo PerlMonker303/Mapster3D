@@ -2,7 +2,7 @@
   "name": "three-ex",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://PerlMonker303.github.io/Mapster3D",
+  "homepage": "https://mapster3d.vercel.app",
   "dependencies": {
     "@react-three/drei": "^3.4.1",
     "@testing-library/jest-dom": "^5.11.9",
