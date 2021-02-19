@@ -43,8 +43,8 @@ export const information_mappings_zones_codes = {
         information: 'Place trees of different sizes'
     },
     'elevate':{
-        title: 'Elevate terrain',
-        information: '(Experimental) Increase the terrain level'
+        title: 'EXPERIMENTAL Elevate terrain',
+        information: 'Increase the terrain level'
     },
     'residential': {
         title: 'Residential area',

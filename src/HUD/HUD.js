@@ -384,6 +384,10 @@ const HUD = ({
                     <label>Expenses: </label>
                     <label className='HUD_negative_funds'>{expenses  + '$'}</label>
                 </section>
+
+                <section className='HUD_top_section'>
+                    <label><a className='HUD_top_a' href="https://github.com/PerlMonker303/Mapster3D" target="_blank">Mapsterv0.1</a></label>
+                </section>
             </section>
             
         </div>

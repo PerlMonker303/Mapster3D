@@ -1,5 +1,6 @@
 <h1>Mapster3D</h1>
 <h2>Build a tiny city in 3D.</h2>
+<a href="https://mapster3d.vercel.app">Play v0.1 HERE</a>
 <p>
 Based on another project of mine from 2 years ago (https://github.com/PerlMonker303/Mapster).
 </p>

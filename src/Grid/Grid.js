@@ -12,7 +12,7 @@ const Grid = ({size}) => {
     }
   
     return (
-      <group>
+      <group dispose={null}>
         {
           values_m.map((item, i) => 
           <mesh key={i} position={[0,0.01,item]}>

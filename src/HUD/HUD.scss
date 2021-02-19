@@ -14,7 +14,6 @@
     width: $marginCanvasLeft;
     height: 100%;
     border: 1px solid black;
-    font-size: larger;
 }
 
 .HUD_top{
@@ -24,7 +23,7 @@
     margin-left: $marginCanvasLeft;
     border: 1px solid black;
     border-left: none;
-    padding: 3px 0px;
+    padding: 2px 0px;
     font-weight: 600;
 }
 
@@ -46,7 +45,7 @@
 
 .HUD_button{
     display: inline-block;
-    padding: 1px;
+    padding: 0px 1px;
     background-color: green;
 }
 
@@ -58,8 +57,12 @@
 .HUD_top_section{
     padding: 0px 10px;
     width: 10vw;
-    height: 15px;
-    vertical-align: middle;
+    height: 22px;
+}
+
+.HUD_top_a{
+    text-decoration: none;
+    color: white;
 }
 
 .HUD_top_section_prolonged{
@@ -92,7 +95,7 @@
 .HUD_loading_bar {
     background-color: rgb(2, 133, 115);
     width: 104px;
-    height: 2.6vh;
+    height: 3vh;
     border: 2px black solid;
 }
 
