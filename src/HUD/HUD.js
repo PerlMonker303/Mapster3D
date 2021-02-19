@@ -386,7 +386,7 @@ const HUD = ({
                 </section>
 
                 <section className='HUD_top_section'>
-                    <label><a className='HUD_top_a' href="https://github.com/PerlMonker303/Mapster3D" target="_blank">Mapsterv0.1</a></label>
+                    <label><a className='HUD_top_a' href="https://perlmonker303.github.io/Mapster3D/" target="_blank">Mapster v0.1</a></label>
                 </section>
             </section>
             

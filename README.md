@@ -15,7 +15,7 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 <li>Watch your population grow</li>
 <li>Manage your funds properly</li>
 <li>Pause or speed up the time</li>
-<li>Elevate the ground around your city</li>
+<li>Elevate the ground around your city (experimental)</li>
 </ul>
 
 <h2>Screenshots</h2>
