@@ -37,7 +37,7 @@ const Ground = ({
     }, state.elevationLevels)
   
     return (
-      <group>
+      <group dispose={null}>
         <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={position}>
           <planeBufferGeometry attach='geometry' args={size} />
           <shadowMaterial attach='material' opacity='0.3' />

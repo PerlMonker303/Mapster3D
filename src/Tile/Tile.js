@@ -126,7 +126,7 @@ const Tile = ({
     }
   
     return (
-        <group>
+        <group dispose={null}>
             {elevationOrientations[position_row][position_col] >= 0 && elevationOrientations[position_row][position_col] <= 4 ?
             <mesh onClick={(event) => { // left click
                 event.stopPropagation();

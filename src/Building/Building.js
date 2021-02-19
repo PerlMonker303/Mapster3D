@@ -104,7 +104,7 @@ const Building = ({
     });
     
     return (
-        <group>
+        <group dispose={null}>
         {!isPreBuild && buildingsShow && !sewageMode ?
                 <a.mesh 
                     castShadow 
