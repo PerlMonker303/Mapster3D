@@ -4,7 +4,7 @@
 Based on another project of mine from 2 years ago (https://github.com/PerlMonker303/Mapster).
 </p>
 
-<b>Features</b>
+<b>Features (v0.1)</b>
 <ul>
 <li>Automatic road alignment system</li>
 <li>Add zones to your roads (residential, commercial, industrial)</li>
@@ -14,9 +14,10 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 <li>Watch your population grow</li>
 <li>Manage your funds properly</li>
 <li>Pause or speed up the time</li>
+<li>Elevate the ground around your city</li>
 </ul>
 
-<h2>Screenshots (WORK IN PROGRESS)</h2>
+<h2>Screenshots</h2>
 <h3>07.02.2021</h3>
 
 ![Image 0](pic0.png)

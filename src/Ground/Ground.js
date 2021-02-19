@@ -60,7 +60,7 @@ const Ground = ({
               selected_option_type={state.selected_option_type}
               sewageMode={state.sewageMode}
               waterAvailability={state.waterAvailability}
-              elevationLevel={pairs === [] || pairs === null || elevationLevels === null ? 0 : elevationLevels[parseInt(pairs[0]) + 10][parseInt(pairs[1]) + 10]}
+              elevationLevel={pairs === [] || pairs === null || elevationLevels === null ? 0 : elevationLevels[parseInt(pairs[0]) + state.mapSize[0] / 2][parseInt(pairs[1]) +  + state.mapSize[1] / 2]}
               maxElevationLevel={maxElevationLevel}
               minElevationLevel={minElevationLevel}
               increaseElevationLevel={increaseElevationLevel}

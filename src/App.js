@@ -33,8 +33,8 @@ import {tree_mappings} from './Mappings/MappingNature';
 class App extends Component {
   constructor(props) {
     super(props);
-    const n = 14;
-    const m = 14;
+    const n = 28;
+    const m = 28;
     const today = new Date();
     this.state = {
       mapSize: [n,m],
