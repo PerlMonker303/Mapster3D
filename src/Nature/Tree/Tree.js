@@ -12,7 +12,7 @@ const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
     const size_trunk_cylinder = [0.1,0.1,trunk_height,32];
     // types of trees: 'square', 'cone', 'pyramid', 'square_rotated'
     const tree_square = (
-        <group>
+        <group dispose={null}>
             <a.mesh position={[1,trunk_height/2,1]}>
                 <cylinderBufferGeometry attach='geometry' args={size_trunk_cylinder}/>
                 <meshStandardMaterial attach='material' color='brown' />
@@ -24,7 +24,7 @@ const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
         </group>
     );
     const tree_cone = (
-        <group>
+        <group dispose={null}>
             <a.mesh position={[1,trunk_height/2,1]}>
                 <cylinderBufferGeometry attach='geometry' args={size_trunk_cylinder}/>
                 <meshStandardMaterial attach='material' color='brown' />
@@ -36,7 +36,7 @@ const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
         </group>
     );
     const tree_pyramid = (
-        <group>
+        <group dispose={null}>
             <a.mesh position={[1,trunk_height/2,1]}>
                 <cylinderBufferGeometry attach='geometry' args={size_trunk_cylinder}/>
                 <meshStandardMaterial attach='material' color='brown' />
@@ -48,7 +48,7 @@ const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
         </group>
     );
     const tree_square_rotated = (
-        <group>
+        <group dispose={null}>
             <a.mesh position={[1,trunk_height/2,1]}>
                 <cylinderBufferGeometry attach='geometry' args={size_trunk_cylinder}/>
                 <meshStandardMaterial attach='material' color='brown' />
@@ -60,7 +60,7 @@ const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
         </group>
     );
     const tree_pyramid_rotated = (
-        <group>
+        <group dispose={null}>
             <a.mesh position={[1,trunk_height/2,1]}>
                 <cylinderBufferGeometry attach='geometry' args={size_trunk_cylinder}/>
                 <meshStandardMaterial attach='material' color='brown' />
@@ -84,6 +84,7 @@ const Tree = ({position, mapSize, type, removeTree, elevationLevel}) => {
         <group 
             onContextMenu={(event) => removeTree(event, [position[0],position[2]])}
             position={[position[0]-mapSize[0]/2 - size_tree_square[0], position[1]/2 + elevationLevel ,position[2]-mapSize[1]/2 - size_tree_square[2]]}
+            dispose={null}
         >
             {tree_mappings_components[type]}
         </group>

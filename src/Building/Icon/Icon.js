@@ -28,6 +28,7 @@ const Icon = ({mapSize, height, position, type, iconHoverIn, iconHoverOut}) => {
         <group 
             onPointerOver={(event) => iconHoverIn(event, type)}
             onPointerOut={(event) => iconHoverOut(event)}
+            dispose={null}
         >
             <a.mesh castShadow position={[actual_position[0],height,actual_position[2]]} ref={mesh}>
             <octahedronBufferGeometry attach='geometry' args={[0.3,0]} />

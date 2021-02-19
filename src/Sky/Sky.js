@@ -7,7 +7,7 @@ const Sky = ({mapSize, levelBoundaries, cloudsCount}) => {
     let clouds = Array(cloudsCount).fill(0);
     const speed = (Math.random() * 5 - 1)/100 // 1-9 / 100 => 0.01-0.09
     return(
-        <group>
+        <group dispose={null}>
             {
                 clouds.map((cloud,i) => 
                     <Cloud key={i} mapSize={mapSize} level={level} color="pink" speed={speed}/>
