@@ -36,7 +36,7 @@ const Cloud = ({mapSize, levelBoundaries, size, color, speed, paused}) => {
         <boxBufferGeometry attach='geometry' args={size} />
         <meshStandardMaterial attach='material' color={color} opacity={0.8} transparent />
       </a.mesh>
-    )
+    ) 
   }
 
 export default React.memo(Cloud);

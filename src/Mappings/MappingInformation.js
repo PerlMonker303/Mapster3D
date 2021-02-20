@@ -52,6 +52,10 @@ export const information_mappings_zones_codes = {
         title: 'Shore',
         information: ['Place shore tiles to contain the water ','Left-click to place','Right-click to remove']
     },
+    'cloud': {
+        title: 'Clouds',
+        information: ['Switch the clouds on/off for a clear/cloudy sky']
+    },
     'tree': {
         title: 'Tree',
         information: ['Place trees of different sizes ','Left-click to place','Right-click to remove']

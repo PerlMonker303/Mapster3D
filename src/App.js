@@ -39,7 +39,7 @@ class App extends Component {
     const m = 30;
     const initialTreeSpawn = Math.ceil(n * m / 10);
     const initialWaterSpawn = Math.ceil(n * m / 80);
-    const initialCloudsSpawn = 8;
+    const initialCloudsSpawn = 10;
     const today = new Date();
     this.state = {
       mapSize: [n,m],
@@ -90,7 +90,8 @@ class App extends Component {
       cloudsKeys: {},
       cloudsKeysList: [],
       cloudsKeysCurrent: 0,
-      cloudsSpeed: Math.abs((Math.random() * 5 - 1) / 100) // 1-9 / 100 => 0.01-0.09
+      cloudsSpeed: Math.abs((Math.random() * 5 - 1) / 100), // 1-9 / 100 => 0.01-0.09
+      cloudsShow: true
     };
     
     this.spawnRandomTrees(initialTreeSpawn);
@@ -435,7 +436,13 @@ class App extends Component {
   }
 
   changeTexturesShow = () => {
-    this.setState({texturesShow: !this.state.texturesShow});
+    const texturesShow = !this.state.texturesShow;
+    this.setState({texturesShow: texturesShow});
+  }
+
+  changeCloudsShow = () => {
+    const cloudsShow = !this.state.cloudsShow;
+    this.setState({cloudsShow: cloudsShow});
   }
 
   neighborIsRoad = ([x,y]) => {
@@ -1556,6 +1563,7 @@ class App extends Component {
       <HUD 
           changeGridShow={this.changeGridShow}
           changeTexturesShow={this.changeTexturesShow}
+          changeCloudsShow={this.changeCloudsShow}
           changeBuildingsShow={this.changeBuildingsShow}
           getBuildingsShow={() => this.state.buildingsShow}
           changeSelectedOptionType={this.changeSelectedOptionType}

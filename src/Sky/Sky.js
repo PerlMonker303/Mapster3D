@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import Cloud from './Cloud/Cloud';
 
-const Sky = ({state, levelBoundaries, speed}) => {
+const Sky = ({state, levelBoundaries}) => {
 
     return(
         <group dispose={null}>
-            {
+            { state.cloudsShow ? 
                 state.cloudsKeysList.map((key,i) => {
                     const cloud = state.cloudsKeys[key];
                     return (
@@ -20,6 +20,7 @@ const Sky = ({state, levelBoundaries, speed}) => {
                     )
                 }
                 )
+                : null
             }
         </group>
     )
