@@ -4,8 +4,8 @@ import {a} from "react-spring/three";
 
 const Cloud = ({mapSize, levelBoundaries, size, color, speed, paused}) => {
     const mesh = useRef(null);
-    const [randX, setX] = useState(Math.floor(Math.random() * mapSize[0] - mapSize[0]));
-    const [randY, setY] = useState(Math.floor(Math.random() * mapSize[1] - mapSize[1]));
+    const [randX, setX] = useState(Math.floor(Math.random() * mapSize[0] - mapSize[0] * 2));
+    const [randY, setY] = useState(Math.floor(Math.random() * mapSize[1] - mapSize[1] * 2));
     const [level, setLevel] = useState(Math.random() * levelBoundaries[1] + levelBoundaries[0]);
     
     const [scaleX, setScaleX] = useState(Math.random() * 2.5 + 1.6);
@@ -14,12 +14,14 @@ const Cloud = ({mapSize, levelBoundaries, size, color, speed, paused}) => {
 
     useFrame(() => {
       if(!paused){
-        if(mesh.current.position.x <= mapSize[0] && mesh.current.position.y <= mapSize[1]){
+        if(mesh.current.position.x <= mapSize[0] * 2 && mesh.current.position.y <= mapSize[1] * 2){
           mesh.current.position.x += speed;
           mesh.current.position.z += speed;
         }else{
-          mesh.current.position.x = Math.floor(Math.random()*mapSize[0] - mapSize[0]);
-          mesh.current.position.z = Math.floor(Math.random()*mapSize[1] - mapSize[1]);;
+          mesh.current.position.x = Math.floor(Math.random() * mapSize[0]  - mapSize[0] * 2);
+          setX(mesh.current.position.x);
+          mesh.current.position.z = Math.floor(Math.random() * mapSize[1]  - mapSize[1] * 2);;
+          setY(mesh.current.position.z);
         }
       }
     });

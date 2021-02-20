@@ -35,10 +35,10 @@ import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 class App extends Component {
   constructor(props) {
     super(props);
-    const n = 28;
-    const m = 28;
-    const initialTreeSpawn = Math.floor(n * m / 10);
-    const initialWaterSpawn = Math.floor(n * m / 100);
+    const n = 30; // min=10, max=28
+    const m = 30;
+    const initialTreeSpawn = Math.ceil(n * m / 10);
+    const initialWaterSpawn = Math.ceil(n * m / 80);
     const initialCloudsSpawn = 8;
     const today = new Date();
     this.state = {
@@ -90,7 +90,7 @@ class App extends Component {
       cloudsKeys: {},
       cloudsKeysList: [],
       cloudsKeysCurrent: 0,
-      cloudsSpeed: (Math.random() * 5 - 1) / 100 // 1-9 / 100 => 0.01-0.09
+      cloudsSpeed: Math.abs((Math.random() * 5 - 1) / 100) // 1-9 / 100 => 0.01-0.09
     };
     
     this.spawnRandomTrees(initialTreeSpawn);
@@ -156,6 +156,24 @@ class App extends Component {
   }
 
   spawnRandomWater = (initialWaterSpawn) => {
+    const waterCode = tile_mappings_textures_codes['water'];
+    let i = 0;
+    let randX, randY;
+    let currentTrees = this.state.trees;
+    let tileMapTextures = this.state.tileMapTextures;
+
+    while(i < initialWaterSpawn){
+      randX = Math.floor(Math.random() * this.state.mapSize[0]);
+      randY = Math.floor(Math.random() * this.state.mapSize[1]);
+      if(tileMapTextures[randX][randY] !== waterCode && currentTrees[[randX,randY]] === undefined){
+        tileMapTextures[randX][randY] = waterCode;
+        i++;
+      }
+    }
+
+    this.setState({
+      tileMapTextures: tileMapTextures
+    });
 
   }
 
