@@ -90,7 +90,7 @@ class App extends Component {
       cloudsKeys: {},
       cloudsKeysList: [],
       cloudsKeysCurrent: 0,
-      cloudsSpeed: Math.abs((Math.random() * 5 - 1) / 100), // 1-9 / 100 => 0.01-0.09
+      cloudsSpeed: Math.abs((Math.random() * 5 - 2) / 100), // [2,5] / 100 => [0.02,0.09]
       cloudsShow: true
     };
     
