@@ -16,7 +16,6 @@ const Sky = ({state, levelBoundaries}) => {
                             color="pink"
                             speed={state.cloudsSpeed}
                             paused={state.isPaused}
-                            cloudsShow={state.cloudsShow}
                         />
                     )
                 }
