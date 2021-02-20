@@ -43,6 +43,7 @@ class App extends Component {
     const today = new Date();
     this.state = {
       mapSize: [n,m],
+      funds: 3000,
       selected_option_type: 'none',
       tileMapTextures: Array(n).fill().map(()=>Array(m).fill(0)),
       tileMapZones: Array(n).fill().map(()=>Array(m).fill(0)),
@@ -67,7 +68,6 @@ class App extends Component {
       treesKeysCurrent: 0,
       loaded: false,
       canLoad: true,
-      funds: 3000,
       sweageMode: false,
       date: {
         year: today.getFullYear(),
