@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import {useFrame} from "react-three-fiber";
 import {a} from "react-spring/three";
 
-const Cloud = ({mapSize, levelBoundaries, size, color, speed, paused}) => {
+const Cloud = ({mapSize, levelBoundaries, size, color, speed, paused, cloudsShow}) => {
     const mesh = useRef(null);
     const [randX, setX] = useState(Math.floor(Math.random() * mapSize[0] - mapSize[0] * 2));
     const [randY, setY] = useState(Math.floor(Math.random() * mapSize[1] - mapSize[1] * 2));
@@ -13,7 +13,7 @@ const Cloud = ({mapSize, levelBoundaries, size, color, speed, paused}) => {
     const [scaleZ, setScaleZ] = useState(Math.random() * 0.9 + 0.4);
 
     useFrame(() => {
-      if(!paused){
+      if(!paused && cloudsShow){
         if(mesh.current.position.x <= mapSize[0] * 2 && mesh.current.position.y <= mapSize[1] * 2){
           mesh.current.position.x += speed;
           mesh.current.position.z += speed;
