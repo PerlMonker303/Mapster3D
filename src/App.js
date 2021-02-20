@@ -17,7 +17,7 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
-// - spawn random water tiles
+// - add different colors for buildings textures - check neighbour to match if adjacent
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
 // - commercialAvailability again for residential buildings
@@ -27,6 +27,7 @@ import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 // - create a road in 3D - with sidewalk and everything
 
 // BUGS:
+// - hovering over stuff in sewage mode - look out for that in deploy mode
 // - inverted road on cliff
 // - loading elevations
 // - load save and orient buildings
@@ -944,7 +945,6 @@ class App extends Component {
       currentPopulation -= building['residents'];
       const currentDelta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[building['type']]][building['level']];
       
-      console.log(currentDelta);
       if(currentDelta > 0){
         currentRevenues -= currentDelta;
       }else{
@@ -1101,7 +1101,6 @@ class App extends Component {
 
   iconHoverIn = (event, typeOfIssue) => {
     event.stopPropagation();
-    console.log(icons_mappings_messages[typeOfIssue]['information']);
     this.setState({informationTitle: icons_mappings_messages[typeOfIssue]['title'], information: icons_mappings_messages[typeOfIssue]['information']});
   }
 
