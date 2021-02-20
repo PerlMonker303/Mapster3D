@@ -175,7 +175,7 @@ export const information_mappings_zones_codes = {
         },
         {
             title: 'Help 7/9',
-            information: ['Place trees and water tiles to customize your city']
+            information: ['Change the speed of the simulation from the top controls']
         },
         {
             title: 'Help 8/9',

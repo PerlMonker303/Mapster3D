@@ -17,8 +17,8 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
-// - spawn random water tiles
 // - make the clouds work
+// - spawn random water tiles
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
 // - commercialAvailability again for residential buildings
@@ -1064,7 +1064,9 @@ class App extends Component {
   }
 
   removePipe = (event, [x,y]) => {
-    event.stopPropagation();
+    if(event !== null){
+      event.stopPropagation();
+    }
     const thisKey = this.getKeyForCoordinates([x,y], 'pipe');
 
     let currentObjects = this.state.tileMapObjects;
@@ -1092,8 +1094,10 @@ class App extends Component {
   }
 
   removeTree = (event, [x,y]) => {
-    event.stopPropagation();
-    if(this.state.selected_option_type !== 'tree' && this.state.selected_option_type !== 'buldoze'){
+    if(event !== null){
+      event.stopPropagation();
+    }
+    if(this.state.selected_option_type !== 'tree' && this.state.selected_option_type !== 'buldoze' && this.state.selected_option_type !== 'elevate'){
       return;
     }
     const thisKey = this.getKeyForCoordinates([x,y], 'tree');
@@ -1280,6 +1284,10 @@ class App extends Component {
 
     // check direct neighbours (left,right,top,bottom)
     if(x > 0){
+      // remove trees from there
+      if(this.state.trees[[x-1,y]] !== undefined){
+        this.removeTree(null, [x-1,y]);
+      }
       if(this.state.elevationLevels[x-1][y] === level - 1){ // level - 1
         elevationOrientations[x-1][y] = 1;
         tileMapTextures[x-1][y] = 16;
@@ -1299,6 +1307,10 @@ class App extends Component {
       }
     }
     if(y > 0){
+      // remove trees from there
+      if(this.state.trees[[x,y-1]] !== undefined){
+        this.removeTree(null, [x,y-1]);
+      }
       if(this.state.elevationLevels[x][y-1] === level - 1){
         elevationOrientations[x][y-1] = 2;
         tileMapTextures[x][y-1] = 16;
@@ -1318,6 +1330,10 @@ class App extends Component {
       }
     }
     if(x < this.state.mapSize[0] - 1){
+      // remove trees from there
+      if(this.state.trees[[x+1,y]] !== undefined){
+        this.removeTree(null, [x+1,y]);
+      }
       if(this.state.elevationLevels[x+1][y] === level - 1){
         elevationOrientations[x+1][y] = 3;
         tileMapTextures[x+1][y] = 16;
@@ -1336,6 +1352,10 @@ class App extends Component {
       }
     }
     if(y < this.state.mapSize[1] - 1){
+      // remove trees from there
+      if(this.state.trees[[x,y-1]] !== undefined){
+        this.removeTree(null, [x,y-1]);
+      }
       if(this.state.elevationLevels[x][y+1] === level - 1){
         elevationOrientations[x][y+1] = 4;
         tileMapTextures[x][y+1] = 16;
@@ -1356,6 +1376,10 @@ class App extends Component {
     }
     // then corner neighbours
     if(x > 0 && y > 0){
+      // remove trees from there
+      if(this.state.trees[[x-1,y-1]] !== undefined){
+        this.removeTree(null, [x-1,y-1]);
+      }
       if(this.state.elevationLevels[x-1][y-1] === 1){
         if(elevationOrientations[x-1][y-1] === 0){
 
@@ -1381,6 +1405,10 @@ class App extends Component {
       }
     }
     if(x < this.state.mapSize[0] - 1 && y > 0){
+      // remove trees from there
+      if(this.state.trees[[x+1,y-1]] !== undefined){
+        this.removeTree(null, [x+1,y-1]);
+      }
       if(this.state.elevationLevels[x+1][y-1] === 1){
         if(elevationOrientations[x+1][y-1] === 0){
 
@@ -1406,6 +1434,10 @@ class App extends Component {
       }
     }
     if(x > 0 && y < this.state.mapSize[1] - 1){
+      // remove trees from there
+      if(this.state.trees[[x-1,y+1]] !== undefined){
+        this.removeTree(null, [x-1,y+1]);
+      }
       if(this.state.elevationLevels[x-1][y+1] === 1){
         if(elevationOrientations[x-1][y+1] === 0){
 
@@ -1431,6 +1463,10 @@ class App extends Component {
       }
     }
     if(x < this.state.mapSize[0] - 1 && y < this.state.mapSize[1] - 1){
+      // remove trees from there
+      if(this.state.trees[[x+1,y+1]] !== undefined){
+        this.removeTree(null, [x+1,y+1]);
+      }
       if(this.state.elevationLevels[x+1][y+1] === 1){
         if(elevationOrientations[x+1][y+1] === 0){
 
@@ -1522,7 +1558,8 @@ class App extends Component {
           increaseElevationLevel={this.increaseElevationLevel}
           decreaseElevationLevel={this.decreaseElevationLevel}/>
 
-        {//<Sky mapSize={this.state.mapSize} levelBoundaries={[10,15]} cloudsCount={10}/>
+        {
+        <Sky mapSize={this.state.mapSize} levelBoundaries={[8,12]} cloudsCount={10}/>
         }
 
         <Suspense fallback={null}>
