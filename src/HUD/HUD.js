@@ -56,7 +56,8 @@ const HUD = ({
     setInformationTitle,
     information,
     setInformation,
-    cycleFinished}) => {
+    cycleFinished,
+    setGlobalTimeLapseMode}) => {
     
     const defaultTitle = information_mappings_zones_codes['default'].title;
     const defaultInformation = information_mappings_zones_codes['default'].information;
@@ -65,16 +66,16 @@ const HUD = ({
     const [progress, setProgress] = useState(0);
     const [reload, setReload] = useState(true);
     const [paused, setPaused] = useState(isPaused);
-    const [timelapseMode, setTimelapseMode] = useState(0); // 0, 1, 2
+    const [timelapseMode, setTimelapseMode] = useState(1); // 1, 2, 3
     //const [miliseconds, setMiliseconds] = useState(0);
     const timeLapseModes = {
-        0: {
+        1: {
             incrementInterval: 2000
         },
-        1: {
+        2: {
             incrementInterval: 1000
         },
-        2: {
+        3: {
             incrementInterval: 500
         }
     }
@@ -134,19 +135,22 @@ const HUD = ({
     const play = () => {
         setPaused(false);
         setIsPausedApp(false);
-        setTimelapseMode(0);
+        setTimelapseMode(1);
+        setGlobalTimeLapseMode(1);
     }
 
     const fast1 = () => {
         setPaused(false);
         setIsPausedApp(false);
-        setTimelapseMode(1);
+        setTimelapseMode(2);
+        setGlobalTimeLapseMode(2);
     }
 
     const fast2 = () => {
         setPaused(false);
         setIsPausedApp(false);
-        setTimelapseMode(2);
+        setTimelapseMode(3);
+        setGlobalTimeLapseMode(3);
     }
 
     return (

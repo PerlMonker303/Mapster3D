@@ -1,20 +1,28 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Cloud from './Cloud/Cloud';
 
-const Sky = ({mapSize, levelBoundaries, cloudsCount}) => {
+const Sky = ({state, levelBoundaries, speed}) => {
 
-    const level = Math.random() * levelBoundaries[1] + levelBoundaries[0];
-    let clouds = Array(cloudsCount).fill(0);
-    const speed = (Math.random() * 5 - 1)/100 // 1-9 / 100 => 0.01-0.09
     return(
         <group dispose={null}>
             {
-                clouds.map((cloud,i) => 
-                    <Cloud key={i} mapSize={mapSize} level={level} color="pink" speed={speed}/>
+                state.cloudsKeysList.map((key,i) => {
+                    const cloud = state.cloudsKeys[key];
+                    return (
+                        <Cloud
+                            key={key}
+                            mapSize={state.mapSize}
+                            levelBoundaries={levelBoundaries}
+                            color="pink"
+                            speed={state.cloudsSpeed}
+                            paused={state.isPaused}
+                        />
+                    )
+                }
                 )
             }
         </group>
     )
 }
 
-export default Sky;
+export default React.memo(Sky);

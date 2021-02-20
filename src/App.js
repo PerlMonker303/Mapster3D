@@ -17,7 +17,6 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
-// - make the clouds work
 // - spawn random water tiles
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
@@ -31,7 +30,6 @@ import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 // - inverted road on cliff
 // - loading elevations
 // - load save and orient buildings
-// - fix clouds
 // - map size must be odd numbers
 
 class App extends Component {
@@ -41,6 +39,7 @@ class App extends Component {
     const m = 28;
     const initialTreeSpawn = Math.floor(n * m / 10);
     const initialWaterSpawn = Math.floor(n * m / 100);
+    const initialCloudsSpawn = 8;
     const today = new Date();
     this.state = {
       mapSize: [n,m],
@@ -76,6 +75,7 @@ class App extends Component {
         day: today.getDate()
       },
       isPaused: false,
+      timeLapseMode: 1,
       currentBuildingSelected: null,
       errorCode: null, // string with error name - check MappingInformation.js
       population: 0,
@@ -86,17 +86,46 @@ class App extends Component {
       elevationLevels: Array(n).fill().map(()=>Array(m).fill(0)),
       elevationOrientations: Array(n).fill().map(()=>Array(m).fill(0)),
       helpCounter: 0,
+      clouds: {},
+      cloudsKeys: {},
+      cloudsKeysList: [],
+      cloudsKeysCurrent: 0,
+      cloudsSpeed: (Math.random() * 5 - 1) / 100 // 1-9 / 100 => 0.01-0.09
     };
     
     this.spawnRandomTrees(initialTreeSpawn);
     this.spawnRandomWater(initialWaterSpawn);
+    this.spawnRandomClouds(initialCloudsSpawn);
     setTimeout(() => {
-      
       if(this.state.treesKeysCurrent === 0){
         // was not set, set it manualy
         this.setState({treesKeysCurrent: initialTreeSpawn})
       }
     }, 1500);
+  }
+
+  spawnRandomClouds = (initialCloudsSpawn) => {
+    let randX, randY;
+    let currentClouds = this.state.clouds;
+    let currentCloudsKeys = this.state.cloudsKeys;
+    let currentCloudsKeysList = this.state.cloudsKeysList;
+    let currentCloudsKeysCurrent = this.state.cloudsKeysCurrent;
+    for(let i=0;i<initialCloudsSpawn;i++){
+      randX = Math.floor(Math.random() * this.state.mapSize[0]);
+      randY = Math.floor(Math.random() * this.state.mapSize[1]);
+      if(currentClouds[[randX,randY]] === undefined){
+        currentClouds[[randX,randY]] = 1;
+        currentCloudsKeys[currentCloudsKeysCurrent] = [randX,randY];
+        currentCloudsKeysList.push(currentCloudsKeysCurrent);
+        currentCloudsKeysCurrent += 1;
+      }
+    }
+    this.setState({
+      clouds: currentClouds,
+      cloudsKeys: currentCloudsKeys,
+      cloudsKeysList: currentCloudsKeysList,
+      cloudsKeysCurrent: currentCloudsKeysCurrent
+    });
   }
 
   spawnRandomTrees = (initialTreeSpawn) => {
@@ -924,7 +953,7 @@ class App extends Component {
     const data = JSON.stringify(this.state);
     const date = new Date();
     saveFile(data, date);
-    this.setState({informationTitle: 'Saved', information: ['You may now exit the simulation']});
+    this.setState({informationTitle: 'Saved', information: ['You may now close the simulation']});
   }
 
   loadFileApp = () => {
@@ -1495,6 +1524,13 @@ class App extends Component {
     this.destroyBuildings(buildingCoordinatesToDestroy);
   }
 
+  setGlobalTimeLapseMode = (mode) => {
+    const oldMode = this.state.timeLapseMode;
+    let cloudsSpeed = this.state.cloudsSpeed;
+    cloudsSpeed /= oldMode;
+    cloudsSpeed *= mode;
+    this.setState({timeLapseMode: mode, cloudsSpeed: cloudsSpeed});
+  }
   
   render(){
   return (
@@ -1524,9 +1560,8 @@ class App extends Component {
           information={this.state.information}
           setInformation={this.setInformation}
           cycleFinished={this.cycleFinished}
+          setGlobalTimeLapseMode={this.setGlobalTimeLapseMode}
         />
-      
-      
 
       <div className="CanvasWrapper">
       <Canvas className={this.state.isPaused ? 'isPaused' : null} shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
@@ -1559,7 +1594,10 @@ class App extends Component {
           decreaseElevationLevel={this.decreaseElevationLevel}/>
 
         {
-        <Sky mapSize={this.state.mapSize} levelBoundaries={[8,12]} cloudsCount={10}/>
+        <Sky 
+          state={this.state}
+          levelBoundaries={[8,12]}
+        />
         }
 
         <Suspense fallback={null}>
@@ -1571,7 +1609,7 @@ class App extends Component {
           const orientation = this.state.buildings[key]['orientation'];
           if(pair){
             return(
-              <Building 
+              <Building
                 key={key}
                 position={[pair[0],0,pair[1]]}
                 size={[1,height,1]}
