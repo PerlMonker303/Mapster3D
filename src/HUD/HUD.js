@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 
 import icon_select from '../assets/icons/icon_select.png';
+import icon_help from '../assets/icons/icon_help.png';
 import icon_grid from '../assets/icons/icon_grid.png';
 import icon_texture from '../assets/icons/icon_texture.png';
 import icon_buildings_on from '../assets/icons/icon_buildings_on.png';
@@ -58,7 +59,7 @@ const HUD = ({
     cycleFinished}) => {
     
     const defaultTitle = 'Information area';
-    const defaultInformation = 'Hover over icons to learn more';
+    const defaultInformation = ['Hover over icons to learn more'];
     const [currentTitle, setCurrentTitle] = useState(defaultTitle);
     const [currentInformation, setCurrentInformation] = useState(defaultInformation);
     const [progress, setProgress] = useState(0);
@@ -158,6 +159,13 @@ const HUD = ({
                         onMouseLeave={() => iconMouseLeave('select')}
                     >
                         <img className='HUD_icon' src={icon_select} alt='icon_select'/>
+                    </section>
+                    <section className='HUD_button' 
+                        onClick={() => changeSelectedOptionType('help')} 
+                        onMouseEnter={() => iconMouseEnter('help')} 
+                        onMouseLeave={() => iconMouseLeave('help')}
+                    >
+                        <img className='HUD_icon' src={icon_help} alt='icon_help'/>
                     </section>
                 </section>
                 <section className='HUD_section'>
@@ -295,9 +303,22 @@ const HUD = ({
                         }
                     </label>
 
-                    {information ? (<p>{information}</p>) :
-                    errorCode ? (<p>{information_mappings_zones_codes[errorCode].information}</p>) :
-                    currentBuildingSelected === null ? (<p>{currentInformation}</p>) : (
+                    {information ? Array.isArray(information) ? (<ul className='HUD_information_ul'>{
+                        information.map((info,key) => (
+                            <li key={key}>{info}</li>
+                        ))
+                    }</ul>) : <h3>information</h3>
+                    :
+                    errorCode ? (<ul className='HUD_information_ul'>{
+                        information_mappings_zones_codes[errorCode].information.map((info,key) => (
+                            <li key={key}>{info}</li>
+                        ))
+                    }</ul>) :
+                    currentBuildingSelected === null ? (<ul className='HUD_information_ul'>{
+                        currentInformation.map((info,key) => (
+                            <li key={key}>{info}</li>
+                        ))
+                        }</ul>) : (
                             <div className='HUD_information'>
                                 <label className={'HUD_information_label_' + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']]}
                             >{tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].charAt(0).toUpperCase() + tile_mappings_zones_codes_inverted[currentBuildingSelected['type']].slice(1)}</label>
@@ -386,7 +407,7 @@ const HUD = ({
                 </section>
 
                 <section className='HUD_top_section'>
-                    <label><a className='HUD_top_a' href="https://perlmonker303.github.io/Mapster3D/" target="_blank">Mapster v0.1</a></label>
+                    <label><a className='HUD_top_a' rel='noreferrer' href="https://perlmonker303.github.io/Mapster3D/" target="_blank">Mapster v0.1</a></label>
                 </section>
             </section>
             

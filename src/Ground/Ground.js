@@ -51,6 +51,7 @@ const Ground = ({
               type={state.selected_option_type} 
               key={pair} 
               position={[pair[0],1,pair[1]]} 
+              mapSize={state.mapSize}
               tileMapZones={state.tileMapZones} 
               tileMapTextures={state.tileMapTextures} 
               setTileMapTexture={setTileMapTexture}
@@ -61,6 +62,7 @@ const Ground = ({
               sewageMode={state.sewageMode}
               waterAvailability={state.waterAvailability}
               elevationLevel={pairs === [] || pairs === null || elevationLevels === null ? 0 : elevationLevels[parseInt(pairs[0]) + state.mapSize[0] / 2][parseInt(pairs[1]) +  + state.mapSize[1] / 2]}
+              elevationLevels={state.elevationLevels}
               maxElevationLevel={maxElevationLevel}
               minElevationLevel={minElevationLevel}
               increaseElevationLevel={increaseElevationLevel}

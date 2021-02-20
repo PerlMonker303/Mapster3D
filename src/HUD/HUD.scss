@@ -45,7 +45,7 @@
 
 .HUD_button{
     display: inline-block;
-    padding: 0px 1px;
+    padding: 1px 1px;
     background-color: green;
 }
 
@@ -109,6 +109,11 @@
 
 .HUD_information {
     
+}
+
+.HUD_information_ul{
+    list-style-type: none;
+    padding: 0;
 }
 
 .HUD_information_label {

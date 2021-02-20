@@ -25,7 +25,8 @@ import TextureDirt3 from '../assets/dirt/Dirt3.png';
 
 const Tile = ({
     type,
-    position, 
+    position,
+    mapSize,
     tileMapZones,
     tileMapTextures, 
     setTileMapTexture, 
@@ -35,6 +36,7 @@ const Tile = ({
     sewageMode, 
     waterAvailability, 
     elevationLevel, 
+    elevationLevels, 
     maxElevationLevel, 
     minElevationLevel, 
     increaseElevationLevel, 
@@ -42,9 +44,24 @@ const Tile = ({
     elevationOrientations}) => {
     const size = [1,1,0.01];
     const actual_position = position.map(pos => pos - 0.5);
-    const [elevation, setElevation] = useState(elevationLevel);
-
-    actual_position[1] = 0.001 + elevation;
+    if(elevationLevels !== null){
+        //console.log(elevationLevels[position[0] + mapSize[0] / 2 - 1]);
+        const val1 = elevationLevels[position[0] + mapSize[0] / 2 - 1];
+        if(val1 !== undefined){
+            //console.log(elevationLevels[position[0] + mapSize[0] / 2 - 1][position[2] + mapSize[1] / 2] - 1);
+            const val2 = elevationLevels[position[0] + mapSize[0] / 2 - 1][position[2] + mapSize[1] / 2 - 1];
+            if(val2 !== undefined){
+                //console.log("MOD");
+                actual_position[1] = 0.001 + val2;
+            }else{
+                //console.log("NOPE");
+            }
+        }
+        
+    }else{
+        actual_position[1] = 0.001;
+    }
+    
   
     const textureGrass1 = useLoader(THREE.TextureLoader, TextureGrass1);
     const textureRoad1 = useLoader(THREE.TextureLoader, TextureRoad1);
@@ -137,8 +154,7 @@ const Tile = ({
                 }else if(selected_option_type === 'pipe' || selected_option_type === 'tree'){
                     setTileMapObject([position_row, position_col]);
                 }else if(type === 'elevate'){
-                    if(elevation < maxElevationLevel){
-                        setElevation(elevation + 1);
+                    if(elevationLevels[position[0] + mapSize[0] / 2 - 1][position[2] + mapSize[1] / 2 - 1] < maxElevationLevel){
                         increaseElevationLevel([position_row, position_col]);
                     }
                 }
@@ -154,8 +170,7 @@ const Tile = ({
                 }else if (tile_mappings_textures_codes[type]){
                     setTileMapTexture([position_row, position_col], 0);
                 }else if(type === 'elevate'){
-                    if(elevation > minElevationLevel){
-                        setElevation(elevation - 1);
+                    if(elevationLevels[position[0] + mapSize[0] / 2 - 1][position[2] + mapSize[1] / 2 - 1] > minElevationLevel){
                         decreaseElevationLevel([position_row, position_col]);
                     }
                 }

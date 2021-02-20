@@ -1,6 +1,6 @@
 
 export const prices_constructions = {
-    'road': 20,
+    'road': 10,
     'residential': { // levels
         1: 100,
         2: 200,
@@ -22,7 +22,7 @@ export const prices_constructions = {
         4: 15000,
         5: 45000
     },
-    'pipe': 10,
+    'pipe': 5,
     'tree': 2
 }
 

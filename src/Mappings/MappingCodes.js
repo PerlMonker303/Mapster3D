@@ -52,6 +52,6 @@ export const icons_mappings_colors = {
 export const icons_mappings_messages = {
     1: {
         title: 'No water',
-        information: 'Make sure the building is connected to a pipe'
+        information: ['Make sure the building is connected to a pipe']
     }
 }

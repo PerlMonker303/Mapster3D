@@ -62,7 +62,7 @@ class App extends Component {
       treesKeysCurrent: 0,
       loaded: false,
       canLoad: true,
-      funds: 2000,
+      funds: 3000,
       sweageMode: false,
       date: {
         year: today.getFullYear(),
@@ -127,6 +127,9 @@ class App extends Component {
       this.setState({sewageMode: true});
     }else if(this.state.sewageMode === true){
       this.setState({sewageMode: false});
+    }
+    if(newType === 'help'){
+      alert("Help yourself (jk, coming soon)");
     }
   }
 
@@ -864,7 +867,7 @@ class App extends Component {
     const data = JSON.stringify(this.state);
     const date = new Date();
     saveFile(data, date);
-    this.setState({informationTitle: 'Saved', information: 'You may now exit the simulation'});
+    this.setState({informationTitle: 'Saved', information: ['You may now exit the simulation']});
   }
 
   loadFileApp = () => {
@@ -883,7 +886,7 @@ class App extends Component {
       setTimeout(() => {
           this.setState({loaded: false});
       }, 1500);
-      this.setState({informationTitle: 'Loaded', information: 'Simulation loaded from ' + date});
+      this.setState({informationTitle: 'Loaded', information: ['Simulation loaded from ' + date]});
     }else{
       this.setState({errorCode: 'err_load_too_early'});
     }
@@ -963,9 +966,9 @@ class App extends Component {
     if(this.state.selected_option_type === 'upgrade'){
       const nextLevel = building.level + 1;
       const priceNextLevel = prices_constructions[typeOfBuilding][nextLevel];
-      let infoText = 'Reached maximum level';
+      let infoText = ['Reached maximum level'];
       if(building.level < 5){
-        infoText = 'Upgrade ' + typeOfBuilding + ' building for ' + priceNextLevel + '$';
+        infoText = ['Upgrade ' + typeOfBuilding + ' building for ' + priceNextLevel + '$'];
       }
       this.setState({informationTitle: 'Upgrade', information: infoText});
     }else if(this.state.selected_option_type === 'downgrade'){
@@ -987,6 +990,7 @@ class App extends Component {
 
   iconHoverIn = (event, typeOfIssue) => {
     event.stopPropagation();
+    console.log(icons_mappings_messages[typeOfIssue]['information']);
     this.setState({informationTitle: icons_mappings_messages[typeOfIssue]['title'], information: icons_mappings_messages[typeOfIssue]['information']});
   }
 
