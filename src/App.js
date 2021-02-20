@@ -7,14 +7,18 @@ import Ground from './Ground/Ground';
 import Building from './Building/Building';
 import Sky from './Sky/Sky.js';
 import {saveFile} from './Management/Save';
+import Help from './Help/Help';
 
 import {OrbitControls} from '@react-three/drei';
 import {tile_mappings_textures_codes, tile_mappings_zones_codes_inverted, icons_mappings_messages} from './Mappings/MappingCodes';
 import {buildings_levels_codes, buildings_textures_codes} from './Mappings/MappingBuildings';
 import {prices_constructions, prices_expenses_and_revenues} from './Mappings/MappingPrices';
 import {tree_mappings} from './Mappings/MappingNature';
+import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
+// - spawn random water tiles
+// - make the clouds work
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
 // - commercialAvailability again for residential buildings
@@ -35,6 +39,8 @@ class App extends Component {
     super(props);
     const n = 28;
     const m = 28;
+    const initialTreeSpawn = Math.floor(n * m / 10);
+    const initialWaterSpawn = Math.floor(n * m / 100);
     const today = new Date();
     this.state = {
       mapSize: [n,m],
@@ -79,7 +85,49 @@ class App extends Component {
       revenues: 0,
       elevationLevels: Array(n).fill().map(()=>Array(m).fill(0)),
       elevationOrientations: Array(n).fill().map(()=>Array(m).fill(0)),
+      helpCounter: 0,
+    };
+    
+    this.spawnRandomTrees(initialTreeSpawn);
+    this.spawnRandomWater(initialWaterSpawn);
+    setTimeout(() => {
+      
+      if(this.state.treesKeysCurrent === 0){
+        // was not set, set it manualy
+        this.setState({treesKeysCurrent: initialTreeSpawn})
+      }
+    }, 1500);
+  }
+
+  spawnRandomTrees = (initialTreeSpawn) => {
+    let i = 0;
+    let randX, randY;
+    let currentTrees = this.state.trees;
+    let currentTreesKeys = this.state.treesKeys;
+    let currentTreesKeysList = this.state.treesKeysList;
+    let currentTreesKeysCurrent = this.state.treesKeysCurrent;
+    while(i < initialTreeSpawn){
+      randX = Math.floor(Math.random() * this.state.mapSize[0]);
+      randY = Math.floor(Math.random() * this.state.mapSize[1]);
+      if(currentTrees[[randX,randY]] === undefined){
+        const random_type = Math.floor(Math.random() * Object.keys(tree_mappings).length + 1);
+        currentTrees[[randX,randY]] = tree_mappings[random_type];
+        currentTreesKeys[currentTreesKeysCurrent] = [randX,randY,random_type];
+        currentTreesKeysList.push(currentTreesKeysCurrent);
+        currentTreesKeysCurrent += 1;
+        i++;
+      }
     }
+    this.setState({
+      trees: currentTrees,
+      treesKeys: currentTreesKeys,
+      treesKeysList: currentTreesKeysList,
+      treesKeysCurrent: currentTreesKeysCurrent
+    });
+  }
+
+  spawnRandomWater = (initialWaterSpawn) => {
+
   }
 
   incrementDate = () => {
@@ -129,7 +177,16 @@ class App extends Component {
       this.setState({sewageMode: false});
     }
     if(newType === 'help'){
-      alert("Help yourself (jk, coming soon)");
+      let currentHelpCounter = this.state.helpCounter;
+      this.setState({
+        informationTitle: information_mappings_zones_codes['help_messages'][currentHelpCounter].title,
+        information: information_mappings_zones_codes['help_messages'][currentHelpCounter].information
+      });
+      currentHelpCounter += 1;
+      if(currentHelpCounter >= information_mappings_zones_codes['help_messages'].length){
+        currentHelpCounter = 0;
+      }
+      this.setState({helpCounter: currentHelpCounter});
     }
   }
 
@@ -1036,7 +1093,7 @@ class App extends Component {
 
   removeTree = (event, [x,y]) => {
     event.stopPropagation();
-    if(this.state.selected_option_type !== 'tree'){
+    if(this.state.selected_option_type !== 'tree' && this.state.selected_option_type !== 'buldoze'){
       return;
     }
     const thisKey = this.getKeyForCoordinates([x,y], 'tree');
@@ -1432,6 +1489,9 @@ class App extends Component {
           setInformation={this.setInformation}
           cycleFinished={this.cycleFinished}
         />
+      
+      
+
       <div className="CanvasWrapper">
       <Canvas className={this.state.isPaused ? 'isPaused' : null} shadowMap colorManagement camera={{position: [-5,12,10], fov: 60}}>
         <ambientLight intensity={0.15} />

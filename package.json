@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://mapster3d.vercel.app",
   "dependencies": {
-    "@react-three/drei": "^3.4.1",
+    "@react-three/drei": "^3.8.6",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.3",

@@ -58,8 +58,8 @@ const HUD = ({
     setInformation,
     cycleFinished}) => {
     
-    const defaultTitle = 'Information area';
-    const defaultInformation = ['Hover over icons to learn more'];
+    const defaultTitle = information_mappings_zones_codes['default'].title;
+    const defaultInformation = information_mappings_zones_codes['default'].information;
     const [currentTitle, setCurrentTitle] = useState(defaultTitle);
     const [currentInformation, setCurrentInformation] = useState(defaultInformation);
     const [progress, setProgress] = useState(0);

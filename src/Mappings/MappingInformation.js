@@ -2,21 +2,25 @@ import {prices_constructions, prices_expenses_and_revenues} from './MappingPrice
 
 
 export const information_mappings_zones_codes = {
+    'default': {
+        title: 'Information area',
+        information: ['Hover over icons to learn more.', 'Hit the question mark icon if you get stuck.']
+    },
     'select': {
         title: 'Select',
         information: ['Learn more about the buildings from the city']
     },
     'help': {
         title: 'Help',
-        information: ['What to do, what to do ...']
+        information: ['Stuck? Click on the icon to learn more']
     },
     'grid': {
         title: 'Grid',
-        information: ['Switch the grid on/off']
+        information: ['Switch the grid on/off','It helps you build more precisely']
     },
     'textures':{
         title: 'Textures',
-        information: ['Switch the textures on/off']
+        information: ['Switch the textures on/off','Place some buildings to see the difference']
     },
     'buildings_on': {
         title: 'Buildings',
@@ -29,7 +33,7 @@ export const information_mappings_zones_codes = {
     'road': {
         title: 'Road',
         information: [
-            'Place two-lane roads (left-click to place, right-click to remove)', 
+            'Place two-lane roads','Left-click to place','Right-click to remove)', 
             'Price: ' + prices_constructions['road'] + '$'
         ]
     },
@@ -42,15 +46,15 @@ export const information_mappings_zones_codes = {
     },
     'water': {
         title: 'Water',
-        information: ['Place water tiles (left-click to place, right-click to remove)']
+        information: ['Place water tiles ','Left-click to place','Right-click to remove']
     },
     'shore': {
         title: 'Shore',
-        information: ['Place shore tiles to contain the water (left-click to place, right-click to remove)']
+        information: ['Place shore tiles to contain the water ','Left-click to place','Right-click to remove']
     },
     'tree': {
         title: 'Tree',
-        information: ['Place trees of different sizes (left-click to place, right-click to remove)']
+        information: ['Place trees of different sizes ','Left-click to place','Right-click to remove']
     },
     'elevate':{
         title: 'EXPERIMENTAL Elevate terrain',
@@ -143,5 +147,43 @@ export const information_mappings_zones_codes = {
     'err_load_no_save': {
         title: 'Loading error',
         information: ['There are no saves to be loaded']
-    }
+    },
+    'help_messages': [
+        {
+            title: 'Help 1/9',
+            information: ['Start by building some residential areas (the green square icon)']
+        },
+        {
+            title: 'Help 2/9',
+            information: ['Then build some roads and connect your houses']
+        },
+        {
+            title: 'Help 3/9',
+            information: ['Build the sewage system by placing pipes.','Make sure they have a connection to a nearby water source.']
+        },
+        {
+            title: 'Help 4/9',
+            information: ['Construct commercial and industry areas.', 'Watch your funds! Residential provide revenues while commercial/industry increases expenses.']
+        },
+        {
+            title: 'Help 5/9',
+            information: ['Upgrade some of the buildings to improve their stats.']
+        },
+        {
+            title: 'Help 6/9',
+            information: ['Place trees and water/shore tiles to customize your city']
+        },
+        {
+            title: 'Help 7/9',
+            information: ['Place trees and water tiles to customize your city']
+        },
+        {
+            title: 'Help 8/9',
+            information: ['Elevate the terrain to add some hills (work in progress)']
+        },
+        {
+            title: 'Help 9/9',
+            information: ['Don\'t forget to save your creations. You can load them later if feel like it.']
+        }
+    ]
 }

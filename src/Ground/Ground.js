@@ -100,6 +100,7 @@ const Ground = ({
               type={tree_mappings[tree[2]]}
               removeTree={removeTree}
               elevationLevel={state.elevationLevels[tree[0]][tree[1]]}
+              selected_option_type={state.selected_option_type}
             />
             )
           }
