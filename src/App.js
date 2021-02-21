@@ -17,8 +17,7 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
-// WON'T WORK - ADD ALT 2 FOR ALL TEXTURES
-// - add different colors for buildings textures - check neighbour to match if adjacent
+// - work on dev branch (merge first)
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
 // - commercialAvailability again for residential buildings
@@ -1414,8 +1413,8 @@ class App extends Component {
     }
     if(y < this.state.mapSize[1] - 1){
       // remove trees from there
-      if(this.state.trees[[x,y-1]] !== undefined){
-        this.removeTree(null, [x,y-1]);
+      if(this.state.trees[[x,y+1]] !== undefined){
+        this.removeTree(null, [x,y+1]);
       }
       if(this.state.elevationLevels[x][y+1] === level - 1){
         elevationOrientations[x][y+1] = 4;

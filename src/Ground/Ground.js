@@ -92,6 +92,9 @@ const Ground = ({
         {!state.sewageMode ? 
           state.treesKeysList.map((key, i) => {
             const tree = state.treesKeys[key];
+            if(tree === undefined){
+              return null;
+            }
             return (
             <Tree 
               key={key}
