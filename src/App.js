@@ -1654,7 +1654,7 @@ class App extends Component {
                 loaded={this.state.loaded}
                 texturesShow={this.state.texturesShow}
                 textures={
-                  buildings_textures_codes[pair[2]][level][alt]
+                  buildings_textures_codes[pair[2]][level]['alt']
                 }
                 defaultTexture={
                   buildings_textures_codes[pair[2]][0][0]
