@@ -17,6 +17,7 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
+// WON'T WORK - ADD ALT 2 FOR ALL TEXTURES
 // - add different colors for buildings textures - check neighbour to match if adjacent
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
@@ -693,7 +694,8 @@ class App extends Component {
       'orientation': this.checkNearbyRoadDirection([x,y]),
       'price': prices_constructions[tile_mappings_zones_codes_inverted[type]][1],
       'residents': buildings_levels_codes[1]['residents'],
-      'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false
+      'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false,
+      'alt': Math.floor(Math.random() * buildings_textures_codes[type][1].length)
     };
     currentPopulation += (type === 1 ? buildings_levels_codes[1]['residents'] : 0);
     const delta = prices_expenses_and_revenues[tile_mappings_zones_codes_inverted[type]][1];
@@ -823,13 +825,16 @@ class App extends Component {
       }
       // level up the building
 
+      const newLevel = currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5;
+
       currentBuildings[thisKey] = {
         'type': currentBuildings[thisKey]['type'],
-        'level': currentBuildings[thisKey]['level'] < 5 ? currentBuildings[thisKey]['level'] + 1 : 5,
+        'level': newLevel,
         'orientation': currentBuildings[thisKey]['orientation'],
         'price': nextPrice,
         'residents': nextPopulation,
-        'hasWater': this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1 ? true : false
+        'hasWater': this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1 ? true : false,
+        'alt': Math.floor(Math.random() * buildings_textures_codes[currentBuildings[thisKey]['type']][newLevel].length)
       };
 
       this.setState({
@@ -866,13 +871,15 @@ class App extends Component {
       let currentPopulation = this.state.population;
       currentPopulation -= nextPopulation;
 
+      const newLevel = currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1;
       currentBuildings[thisKey] = {
         'type': currentBuildings[thisKey]['type'],
-        'level': currentBuildings[thisKey]['level'] > 1 ? currentBuildings[thisKey]['level'] - 1 : 1,
+        'level': newLevel,
         'orientation': currentBuildings[thisKey]['orientation'],
         'price': nextPrice,
         'residents': nextPopulation,
-        'hasWater': this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1 ? true : false
+        'hasWater': this.state.waterAvailability[buildingCoordinates[0]][buildingCoordinates[1]] === 1 ? true : false,
+        'alt': Math.floor(Math.random() * buildings_textures_codes[currentBuildings[thisKey]['type']][newLevel].length)
       };
 
       this.setState({
@@ -1046,7 +1053,8 @@ class App extends Component {
           'orientation': orientation,
           'price': prices_constructions[tile_mappings_zones_codes_inverted[currentBuildings[key]['type']]][1],
           'residents': buildings_levels_codes[currentBuildings[key]['level']]['residents'],
-          'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false
+          'hasWater': this.state.waterAvailability[x][y] === 1 ? true : false,
+          'alt': currentBuildings[key]['alt']
         };
       }
       this.setState({buildings: currentBuildings});
@@ -1632,6 +1640,7 @@ class App extends Component {
           const level = this.state.buildings[key]['level'];
           const height = buildings_levels_codes[level]['height'];
           const orientation = this.state.buildings[key]['orientation'];
+          const alt = this.state.buildings[key]['alt'];
           if(pair){
             return(
               <Building
@@ -1645,10 +1654,10 @@ class App extends Component {
                 loaded={this.state.loaded}
                 texturesShow={this.state.texturesShow}
                 textures={
-                  buildings_textures_codes[pair[2]][level]
+                  buildings_textures_codes[pair[2]][level][alt]
                 }
                 defaultTexture={
-                  buildings_textures_codes[pair[2]][0]
+                  buildings_textures_codes[pair[2]][0][0]
                 }
                 orientation={orientation}
                 buildingsShow={this.state.buildingsShow}

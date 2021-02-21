@@ -27,12 +27,12 @@ const Building = ({
     iconHoverIn,
     iconHoverOut,
     elevationLevel}) => {
+
     // position - based on matrices
     const mesh = useRef(null);
     const initial_position = [...position];
     const [isPreBuild, setPreBuild] = useState(loaded ? false : true); // is in prebuild stage? (only zone is visible, not building)
     const [isBuilt, setBuilt] = useState(false);
-    //const randomLevel = Math.floor(Math.random() * 5) + 1; level = randomLevel;
 
     // assets
     const defaultTextureLocal = useLoader(THREE.TextureLoader, defaultTexture);
