@@ -174,6 +174,7 @@ const Tile = ({
                 }
             }}
             onPointerOver={(event) => {
+                event.stopPropagation();
                 console.log(selected_option_type);
                 if(selected_option_type === 'residential' || selected_option_type === 'commercial' ||
                  selected_option_type === 'industry'){
