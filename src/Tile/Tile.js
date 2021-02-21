@@ -176,8 +176,7 @@ const Tile = ({
             onPointerOver={(event) => {
                 console.log(selected_option_type);
                 if(selected_option_type === 'residential' || selected_option_type === 'commercial' ||
-                 selected_option_type === 'industry' || selected_option_type === 'road' || selected_option_type === 'tree'
-                 || selected_option_type === 'water' || selected_option_type === 'shore' || selected_option_type === 'elevate'){
+                 selected_option_type === 'industry'){
                     setHovered(true);
                  }
                 
