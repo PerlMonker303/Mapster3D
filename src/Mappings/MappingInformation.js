@@ -191,7 +191,7 @@ export const information_mappings_zones_codes = {
         },
         {
             title: 'Help 10/10',
-            information: ['Don\'t forget to save your creation. You can load them later if feel like it.']
+            information: ['Don\'t forget to save your creation. You can load it later if feel like it.']
         }
     ]
 }
