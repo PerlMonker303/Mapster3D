@@ -1652,12 +1652,13 @@ class App extends Component {
                 clickHandlerBuilding={this.clickHandlerBuilding}
                 level={this.state.buildings[key]['level']}
                 loaded={this.state.loaded}
+                alt={alt}
                 texturesShow={this.state.texturesShow}
                 textures={
-                  buildings_textures_codes[pair[2]][level]['alt']
+                  buildings_textures_codes[pair[2]][level]
                 }
                 defaultTexture={
-                  buildings_textures_codes[pair[2]][0][0]
+                  buildings_textures_codes[pair[2]][0]
                 }
                 orientation={orientation}
                 buildingsShow={this.state.buildingsShow}

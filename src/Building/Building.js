@@ -14,6 +14,7 @@ const Building = ({
     clickHandlerBuilding,
     level,
     loaded,
+    alt,
     texturesShow,
     textures,
     defaultTexture,
@@ -35,13 +36,13 @@ const Building = ({
     const [isBuilt, setBuilt] = useState(false);
 
     // assets
-    const defaultTextureLocal = useLoader(THREE.TextureLoader, defaultTexture);
-    const textureFront1 = useLoader(THREE.TextureLoader, textures[0]);
-    const textureBack1 = useLoader(THREE.TextureLoader, textures[1]);
-    const textureTop1 = useLoader(THREE.TextureLoader, textures[2]);
-    const textureBottom1 = useLoader(THREE.TextureLoader, textures[3]);
-    const textureSide1 = useLoader(THREE.TextureLoader, textures[4]);
-    const textureSide2 = useLoader(THREE.TextureLoader, textures[5]);
+    const defaultTextureLocal = useLoader(THREE.TextureLoader, defaultTexture[0]);
+    const textureFront1 = useLoader(THREE.TextureLoader, textures[0][alt]);
+    const textureBack1 = useLoader(THREE.TextureLoader, textures[1][alt]);
+    const textureTop1 = useLoader(THREE.TextureLoader, textures[2][alt]);
+    const textureBottom1 = useLoader(THREE.TextureLoader, textures[3][alt]);
+    const textureSide1 = useLoader(THREE.TextureLoader, textures[4][alt]);
+    const textureSide2 = useLoader(THREE.TextureLoader, textures[5][alt]);
     let textureArray = [textureFront1,textureBack1,textureTop1,
         textureBottom1,textureSide1,textureSide2];
 
