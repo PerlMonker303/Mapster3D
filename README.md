@@ -1,11 +1,11 @@
 <h1>Mapster3D</h1>
 <h2>Build a tiny city in 3D.</h2>
 
-![Image Hero1](hero1.png)
+![Image Hero1](images/hero1.png)
 
-![Image Hero2](hero2.png)
+![Image Hero2](images/hero2.png)
 
-![Image Hero3](hero3.png)
+![Image Hero3](images/hero3.png)
 
 <a href="https://mapster3d.vercel.app">Play v0.1 HERE</a>
 <p>
@@ -28,40 +28,40 @@ Based on another project of mine from 2 years ago (https://github.com/PerlMonker
 <h2>Screenshots</h2>
 <h3>07.02.2021</h3>
 
-![Image 0](pic0.png)
+![Image 0](images/pic0.png)
 
 <h3>08.02.2021</h3>
 
-![Image 1](pic1.png)
+![Image 1](images/pic1.png)
 
 <h3>09.02.2021</h3>
 
-![Image 2](pic2.png)
+![Image 2](images/pic2.png)
 
 <h3>10.02.2021</h3>
 
-![Image 3](pic3.png)
+![Image 3](images/pic3.png)
 
 <h3>11.02.2021</h3>
 
-![Image 4](pic4.png)
+![Image 4](images/pic4.png)
 
 <h3>12.02.2021</h3>
 
-![Image 5](pic5.png)
+![Image 5](images/pic5.png)
 
 <h3>14.02.2021</h3>
 
-![Image 6](pic6.png)
+![Image 6](images/pic6.png)
 
 <h3>15.02.2021</h3>
 
-![Image 7](pic7.png)
+![Image 7](images/pic7.png)
 
 <h3>18.02.2021</h3>
 
-![Image 8](pic8.png)
+![Image 8](images/pic8.png)
 
 <h3>20.02.2021</h3>
 
-![Image 9](pic9.png)
+![Image 9](images/pic9.png)
