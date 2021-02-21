@@ -12,7 +12,7 @@ export const information_mappings_zones_codes = {
     },
     'help': {
         title: 'Help',
-        information: ['Stuck? Click on the icon to learn more']
+        information: ['Stuck? Confused? Click to learn more']
     },
     'grid': {
         title: 'Grid',
@@ -154,40 +154,44 @@ export const information_mappings_zones_codes = {
     },
     'help_messages': [
         {
-            title: 'Help 1/9',
+            title: 'Help 1/10',
             information: ['Start by building some residential areas (the green square icon)']
         },
         {
-            title: 'Help 2/9',
+            title: 'Help 2/10',
             information: ['Then build some roads and connect your houses']
         },
         {
-            title: 'Help 3/9',
+            title: 'Help 3/10',
             information: ['Build the sewage system by placing pipes.','Make sure they have a connection to a nearby water source.']
         },
         {
-            title: 'Help 4/9',
-            information: ['Construct commercial and industry areas.', 'Watch your funds! Residential provide revenues while commercial/industry increases expenses.']
+            title: 'Help 4/10',
+            information: ['Construct commercial and industry areas.']
         },
         {
-            title: 'Help 5/9',
+            title: 'Help 5/10',
+            information: ['Watch your funds! Residential areas provide revenues while commercial/industry areas increase expenses.']
+        },
+        {
+            title: 'Help 6/10',
             information: ['Upgrade some of the buildings to improve their stats.']
         },
         {
-            title: 'Help 6/9',
+            title: 'Help 7/10',
             information: ['Place trees and water/shore tiles to customize your city']
         },
         {
-            title: 'Help 7/9',
-            information: ['Change the speed of the simulation from the top controls']
+            title: 'Help 8/10',
+            information: ['Change the speed of the simulation from the top controls if you get bored :)']
         },
         {
-            title: 'Help 8/9',
+            title: 'Help 9/10',
             information: ['Elevate the terrain to add some hills (work in progress)']
         },
         {
-            title: 'Help 9/9',
-            information: ['Don\'t forget to save your creations. You can load them later if feel like it.']
+            title: 'Help 10/10',
+            information: ['Don\'t forget to save your creation. You can load them later if feel like it.']
         }
     ]
 }
