@@ -42,26 +42,22 @@ const Tile = ({
     increaseElevationLevel, 
     decreaseElevationLevel,
     elevationOrientations}) => {
+
     const size = [1,1,0.01];
     const actual_position = position.map(pos => pos - 0.5);
     if(elevationLevels !== null){
-        //console.log(elevationLevels[position[0] + mapSize[0] / 2 - 1]);
         const val1 = elevationLevels[position[0] + mapSize[0] / 2 - 1];
         if(val1 !== undefined){
-            //console.log(elevationLevels[position[0] + mapSize[0] / 2 - 1][position[2] + mapSize[1] / 2] - 1);
             const val2 = elevationLevels[position[0] + mapSize[0] / 2 - 1][position[2] + mapSize[1] / 2 - 1];
             if(val2 !== undefined){
-                //console.log("MOD");
                 actual_position[1] = 0.001 + val2;
             }else{
-                //console.log("NOPE");
             }
         }
         
     }else{
         actual_position[1] = 0.001;
     }
-    
   
     const textureGrass1 = useLoader(THREE.TextureLoader, TextureGrass1);
     const textureRoad1 = useLoader(THREE.TextureLoader, TextureRoad1);
@@ -141,6 +137,8 @@ const Tile = ({
         7: [1.27,0],
         8: [1.27,0]
     }
+
+    const [hovered, setHovered] = useState(false);
   
     return (
         <group dispose={null}>
@@ -175,13 +173,27 @@ const Tile = ({
                     }
                 }
             }}
+            onPointerOver={(event) => {
+                console.log(selected_option_type);
+                if(selected_option_type === 'residential' || selected_option_type === 'commercial' ||
+                 selected_option_type === 'industry' || selected_option_type === 'road' || selected_option_type === 'tree'
+                 || selected_option_type === 'water' || selected_option_type === 'shore' || selected_option_type === 'elevate'){
+                    setHovered(true);
+                 }
+                
+            }}
+            onPointerOut={(event) => {
+                if(hovered){
+                    setHovered(false);
+                }
+            }}
             >
                 <boxBufferGeometry attach='geometry' args={elevation_mappings_size[elevationOrientations[position_row][position_col]]}/>
                 <meshStandardMaterial 
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
                         sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
-                    color={tile_mappings_zones[tileMapZones[position_row][position_col]]}
+                    color={hovered ? 'grey' : tile_mappings_zones[tileMapZones[position_row][position_col]]}
                 />
             </mesh>
             : 
@@ -201,7 +213,7 @@ const Tile = ({
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
                         sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
-                    color={tile_mappings_zones[tileMapZones[position_row][position_col]]}
+                    color={hovered ? 'grey' : tile_mappings_zones[tileMapZones[position_row][position_col]]}
                     side={THREE.DoubleSide}
                 />
             </mesh>
