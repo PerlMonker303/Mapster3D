@@ -1,7 +1,11 @@
 <h1>Mapster3D</h1>
 <h2>Build a tiny city in 3D.</h2>
 
-![Image Hero](hero.png)
+![Image Hero1](hero1.png)
+
+![Image Hero2](hero2.png)
+
+![Image Hero3](hero3.png)
 
 <a href="https://mapster3d.vercel.app">Play v0.1 HERE</a>
 <p>
