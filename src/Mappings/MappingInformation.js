@@ -108,6 +108,10 @@ export const information_mappings_zones_codes = {
         title: 'Load',
         information: ['Load the city from the local storage']
     },
+    'new': {
+        title: 'New game',
+        information: ['Start from scratch.', ' Make sure to save the current game before.']
+    },
     'funds':{
         title: 'Funds',
         information: ['How much money you currently own']

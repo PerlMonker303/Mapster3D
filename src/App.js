@@ -17,7 +17,6 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // TO DO: 
-// - work on dev branch (merge first)
 // - add pipes on cliffs
 // - add jobAvailability for residential houses with factories
 // - commercialAvailability again for residential buildings
@@ -94,6 +93,7 @@ class App extends Component {
       cloudsSpeed: Math.abs((Math.random() * 5 - 2) / 100), // [2,5] / 100 => [0.02,0.09]
       cloudsShow: true
     };
+
     
     this.spawnRandomTrees(initialTreeSpawn);
     this.spawnRandomWater(initialWaterSpawn);
@@ -1009,6 +1009,10 @@ class App extends Component {
     }
   }
 
+  newFileApp = () => {
+    window.location.reload(false);
+  }
+
   checkNearbyRoadDirection = ([x,y]) => {
     let result = 0;
     if(x < this.state.tileMapZones.length-1 && this.state.tileMapTextures[x+1][y] > 0 && this.state.tileMapTextures[x+1][y] <= 11){
@@ -1575,6 +1579,7 @@ class App extends Component {
           changeSelectedOptionType={this.changeSelectedOptionType}
           saveFile={this.saveFileApp}
           loadFile={this.loadFileApp}
+          newFile={this.newFileApp}
           incrementDate={this.incrementDate}
           funds={this.state.funds}
           revenues={this.state.revenues}
