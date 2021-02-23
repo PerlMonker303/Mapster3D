@@ -84,6 +84,7 @@ const Ground = ({
                 sewageMode={state.sewageMode}
                 removePipe={removePipe}
                 elevationLevel={state.elevationLevels[pipe[0]][pipe[1]]}
+                elevationOrientations={state.elevationOrientations}
               />
             )
           }

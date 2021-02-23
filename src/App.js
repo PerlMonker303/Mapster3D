@@ -16,20 +16,15 @@ import {prices_constructions, prices_expenses_and_revenues} from './Mappings/Map
 import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
-// TO DO: 
-// - add pipes on cliffs
-// - add jobAvailability for residential houses with factories
-// - commercialAvailability again for residential buildings
-// - needs for residential areas (commercial, jobs from industry)
+// Version 0.2 Features TO DO
+// - commercial (shops) and industry (jobs) needs for residential
+// - view range of commercial and industry satisfaction
 // - add parks that improve happiness
-// - add more sprites (levels 3,4,5)
-// - create a road in 3D - with sidewalk and everything
+// - view happiness of residential areas
 
 // BUGS:
 // - hovering over stuff in sewage mode - look out for that in deploy mode
 // - inverted road on cliff
-// - loading elevations
-// - load save and orient buildings
 // - map size must be odd numbers
 
 class App extends Component {

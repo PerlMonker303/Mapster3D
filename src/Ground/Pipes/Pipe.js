@@ -1,7 +1,7 @@
 import React from 'react'
 import {a} from "react-spring/three";
 
-const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode, removePipe, elevationLevel}) => {
+const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode, removePipe, elevationLevel, elevationOrientations}) => {
 
     const pipe_straight_1 = (
         <group onContextMenu={event => removePipe(event, [position[0],position[2]])} dispose={null}>
@@ -346,6 +346,98 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode, removePipe, 
          </group>
     );
 
+    const pipe_cliff_1 = (
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])} dispose={null}>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel + 0.5 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 2, -Math.PI / 4, Math.PI/2]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.2, 0.2, 1.3, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='grey'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - 0.98 + 1, 0.005 + elevationLevel ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 2, -Math.PI / 4, Math.PI/2]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.26, 0.26, 0.1, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - 0.02 + 1, 0.005 + elevationLevel + 1 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 2, -Math.PI / 4, Math.PI/2]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.22, 0.22, 0.15, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+        </group>
+    );
+
+    const pipe_cliff_2 = (
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])} dispose={null}>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel + 0.5 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[+Math.PI / 4, 0, 0]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.2, 0.2, 1.3, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='grey'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel + 1 ,position[2]-mapSize[1]/2 - 0.02 + 1]
+            } rotation={[+Math.PI / 4, 0, 0]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.22, 0.22, 0.15, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel ,position[2]-mapSize[1]/2 - 0.98 + 1]
+            } rotation={[+Math.PI / 4, 0, 0]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.26, 0.26, 0.1, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+         </group>
+    );
+
+    const pipe_cliff_3 = (
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])} dispose={null}>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel + 0.5 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 2, Math.PI / 4, Math.PI/2]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.2, 0.2, 1.3, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='grey'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - 0.98 + 1, 0.005 + elevationLevel + 1 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 2, Math.PI / 4, Math.PI/2]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.22, 0.22, 0.15, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - 0.02 + 1, 0.005 + elevationLevel ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 2, Math.PI / 4, Math.PI/2]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.26, 0.26, 0.1, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+        </group>
+    );
+
+    const pipe_cliff_4 = (
+        <group onContextMenu={event => removePipe(event, [position[0],position[2]])} dispose={null}>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel + 0.5 ,position[2]-mapSize[1]/2 - size[2]/2 + 1]
+            } rotation={[-Math.PI / 4, 0, 0]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.2, 0.2, 1.3, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='grey'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel ,position[2]-mapSize[1]/2 - 0.02 + 1]
+            } rotation={[-Math.PI / 4, 0, 0]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.26, 0.26, 0.1, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+            <a.mesh castShadow position={
+                [position[0]-mapSize[0]/2 - size[0]/2 + 1, 0.005 + elevationLevel + 1 ,position[2]-mapSize[1]/2 - 0.98 + 1]
+            } rotation={[-Math.PI / 4, 0, 0]}>
+                <cylinderBufferGeometry attach='geometry' args={[0.22, 0.22, 0.15, 15, 1, false, 0, 6.3]}/>
+                <meshStandardMaterial attach='material' color='black'/>
+            </a.mesh>
+         </group>
+    );
+
     const pipeMappings = {
         '1': pipe_straight_1,
         '2': pipe_straight_2,
@@ -360,11 +452,18 @@ const Pipe = ({mapSize, position, size, tileMapObjects, sewageMode, removePipe, 
         '11': pipe_intersection_4,
     }
 
+    const pipeMappingsCliffs = {
+        '1': pipe_cliff_1,
+        '2': pipe_cliff_2,
+        '3': pipe_cliff_3,
+        '4': pipe_cliff_4
+    }
+
     const isPipe = tileMapObjects[position[0]][position[2]] !== 0;
 
     return (
-        sewageMode && isPipe ? pipeMappings[tileMapObjects[position[0]][[position[2]]]]
-        : null
+        sewageMode && isPipe && elevationOrientations[position[0]][position[2]] === 0 ? pipeMappings[tileMapObjects[position[0]][[position[2]]]]
+        : sewageMode && isPipe ? pipeMappingsCliffs[elevationOrientations[position[0]][position[2]]] : null
     )
 }
 
