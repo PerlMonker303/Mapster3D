@@ -331,6 +331,20 @@ const HUD = ({
                     </section>
                 </section>
 
+                <section className='HUD_section'>
+                    <section className='HUD_button' onClick={() => changeJobAvailabilityShow()}
+                        onMouseEnter={() => iconMouseEnter('jobAvailability')} 
+                        onMouseLeave={() => iconMouseLeave('jobAvailability')}
+                    >
+                        <img className='HUD_icon' src={icon_jobAvailability} alt='icon_jobAvailability'/>
+                    </section>
+                    <section className='HUD_button' onClick={() => changeCommercialAvailabilityShow()}
+                        onMouseEnter={() => iconMouseEnter('commercialAvailability')} 
+                        onMouseLeave={() => iconMouseLeave('commercialAvailability')}
+                    >
+                        <img className='HUD_icon' src={icon_commercialAvailability} alt='icon_commercialAvailability'/>
+                    </section>
+                </section>
 
                 <section className={errorCode ? 'HUD_footer HUD_information_error' : 'HUD_footer'}>
                     <label>

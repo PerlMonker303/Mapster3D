@@ -89,7 +89,11 @@ class App extends Component {
       cloudsSpeed: Math.abs((Math.random() * 5 - 2) / 100), // [2,5] / 100 => [0.02,0.09]
       cloudsShow: true,
       jobAvailability: false,
-      commercialAvailability: false
+      jobAvailabilityMap: Array(n).fill().map(()=>Array(m).fill(0)),
+      jobRange: 5,
+      commercialAvailability: false,
+      commercialAvailabilityMap: Array(n).fill().map(()=>Array(m).fill(0)),
+      commercialRange: 5
     };
 
     
@@ -1091,6 +1095,9 @@ class App extends Component {
   buildingHoverIn = (event, buildingCoordinates) => {
     event.stopPropagation();
     const key = this.getKeyForCoordinates([buildingCoordinates[0],buildingCoordinates[1]], 'building');
+    if(key === undefined){
+      return;
+    }
     const building = this.state.buildings[key];
     const typeOfBuilding = tile_mappings_zones_codes_inverted[building.type];
     if(this.state.selected_option_type === 'upgrade'){
@@ -1576,6 +1583,9 @@ class App extends Component {
   }
 
   changeJobAvailabilityShow = () => {
+    if(this.state.jobAvailability === false){
+      this.getJobAvailabilityMap();
+    }
     this.setState({selected_option_type: 'select'});
     if(this.state.commercialAvailability){
       this.setState({commercialAvailability: false});
@@ -1588,6 +1598,9 @@ class App extends Component {
   }
 
   changeCommercialAvailabilityShow = () => {
+    if(this.state.commercialAvailability === false){
+      this.getCommercialAvailabilityMap();
+    }
     this.setState({selected_option_type: 'select'});
     if(this.state.jobAvailability){
       this.setState({jobAvailability: false});
@@ -1597,6 +1610,69 @@ class App extends Component {
     }else{
       this.setState({commercialAvailability: !this.state.commercialAvailability});
     }
+  }
+
+  getJobAvailabilityMap = () => {
+    const [n, m] = this.state.mapSize;
+    let x, y;
+    let mapJobs = Array(n).fill().map(()=>Array(m).fill(0));
+    let visited = Array(n).fill().map(()=>Array(m).fill(0));
+    let currentBuildingCoordinates = this.state.buildingCoordinates;
+    currentBuildingCoordinates = currentBuildingCoordinates.filter(building => building[2] === 3);
+    currentBuildingCoordinates.map(building => {
+      const key = this.getKeyForCoordinates([building[0], building[1]], 'building');
+      if(key !== undefined){
+        visited = Array(n).fill().map(()=>Array(m).fill(0));
+        x = building[0]
+        y = building[1]
+        mapJobs = this.parseHeatMap([x,y], [n,m], mapJobs, visited, this.state.jobRange);
+      }
+    });
+    this.setState({jobAvailabilityMap: mapJobs});
+  }
+
+  getCommercialAvailabilityMap = () => {
+    const [n, m] = this.state.mapSize;
+    let x, y;
+    let mapCom = Array(n).fill().map(()=>Array(m).fill(0));
+    let visited = Array(n).fill().map(()=>Array(m).fill(0));
+    let currentBuildingCoordinates = this.state.buildingCoordinates;
+    currentBuildingCoordinates = currentBuildingCoordinates.filter(building => building[2] === 2);
+    currentBuildingCoordinates.map(building => {
+      const key = this.getKeyForCoordinates([building[0], building[1]], 'building');
+      if(key !== undefined){
+        visited = Array(n).fill().map(()=>Array(m).fill(0));
+        x = building[0]
+        y = building[1]
+        mapCom = this.parseHeatMap([x,y], [n,m], mapCom, visited, this.state.commercialRange);
+      }
+    });
+    this.setState({commercialAvailabilityMap: mapCom});
+  }
+
+  parseHeatMap = ([x, y], [n,m], map, visited, current) => {
+    if(current > 0 && visited[y][x] === 0){
+      map[y][x] += current;
+      visited[y][x] = 1;
+      // go up
+      if(y > 0){
+        map = this.parseHeatMap([x, y-1], [n,m], map, visited, current - 1);
+      }
+      // go right
+      if(x < m - 1){
+        map = this.parseHeatMap([x+1, y], [n,m], map, visited, current - 1);
+      }
+      // go down
+      if(y < n - 1){
+        map = this.parseHeatMap([x, y+1], [n,m], map, visited, current - 1);
+      }
+      // go left
+      if(x > 0){
+        map = this.parseHeatMap([x-1, y], [n,m], map, visited, current - 1);
+      }
+    }
+
+    return map;
   }
   
   render(){

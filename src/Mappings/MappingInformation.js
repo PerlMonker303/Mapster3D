@@ -114,11 +114,11 @@ export const information_mappings_zones_codes = {
     },
     'jobAvailability': {
         title: 'Job availability',
-        information: ['Job']
+        information: ['View the job availability map.', 'Make sure all residential buildings have access to at least one.']
     },
     'commercialAvailability': {
         title: 'Commercial availability',
-        information: ['Com']
+        information: ['View the commercial availability map.', 'Make sure all residential buildings have access to at least one.']
     },
     'funds':{
         title: 'Funds',

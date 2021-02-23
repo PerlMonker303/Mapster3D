@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useLoader} from "react-three-fiber";
 import * as THREE from 'three';
 
@@ -22,6 +22,7 @@ import TextureShore1 from '../assets/shore/Shore1.png';
 import TextureDirt1 from '../assets/dirt/Dirt1.png';
 import TextureDirt2 from '../assets/dirt/Dirt2.png';
 import TextureDirt3 from '../assets/dirt/Dirt3.png';
+import TextureDefault from '../assets/buildings/commercial/b_com_default.png'
 
 const Tile = ({
     type,
@@ -42,7 +43,9 @@ const Tile = ({
     decreaseElevationLevel,
     elevationOrientations,
     jobAvailability,
-    commercialAvailability}) => {
+    jobAvailabilityMap,
+    commercialAvailability,
+    commercialAvailabilityMap}) => {
 
     const size = [1,1,0.01];
     const actual_position = position.map(pos => pos - 0.5);
@@ -59,6 +62,44 @@ const Tile = ({
     }else{
         actual_position[1] = 0.001;
     }
+    const [jobAvailabilityColor, setJobAvailabilityColor] = useState('rgb(255,255,255)');
+    const [commercialAvailabilityColor, setCommercialAvailabilityColor] = useState('rgb(255,255,255)');
+
+    useEffect(() => {
+        if(jobAvailabilityMap !== null){
+            const x = position[0] + mapSize[0] / 2 - 1;
+            const y = position[2] + mapSize[1] / 2 - 1;
+            if(jobAvailabilityMap[y][x] > 0){
+                let nr = 255 - jobAvailabilityMap[y][x] * 30;
+                if(nr > 230){
+                    nr = 230;
+                }else if(nr < 0){
+                    nr = 0;
+                }
+                setJobAvailabilityColor('rgb(0,'+nr+',0)');
+            }else{
+                setJobAvailabilityColor('rgb(255,255,255)');
+            }
+        }
+    }, [jobAvailabilityMap]);
+
+    useEffect(() => {
+        if(commercialAvailabilityMap !== null){
+            const x = position[0] + mapSize[0] / 2 - 1;
+            const y = position[2] + mapSize[1] / 2 - 1;
+            if(commercialAvailabilityMap[y][x] > 0){
+                let nr = 255 - commercialAvailabilityMap[y][x] * 30;
+                if(nr > 230){
+                    nr = 230;
+                }else if(nr < 0){
+                    nr = 0;
+                }
+                setCommercialAvailabilityColor('rgb(0,'+nr+',0)');
+            }else{
+                setCommercialAvailabilityColor('rgb(255,255,255)');
+            }
+        }
+    }, [commercialAvailabilityMap]);
   
     const textureGrass1 = useLoader(THREE.TextureLoader, TextureGrass1);
     const textureRoad1 = useLoader(THREE.TextureLoader, TextureRoad1);
@@ -77,6 +118,7 @@ const Tile = ({
     const textureDirt1 = useLoader(THREE.TextureLoader, TextureDirt1);
     const textureDirt2 = useLoader(THREE.TextureLoader, TextureDirt2);
     const textureDirt3 = useLoader(THREE.TextureLoader, TextureDirt3);
+    const textureDefault = useLoader(THREE.TextureLoader, TextureDefault);
 
     const tile_mappings_textures = {
         0: textureGrass1,
@@ -191,11 +233,13 @@ const Tile = ({
                 <boxBufferGeometry attach='geometry' args={elevation_mappings_size[elevationOrientations[position_row][position_col]]}/>
                 <meshStandardMaterial 
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
-                        sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
+                        sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : 
+                        !sewageMode && (jobAvailability || commercialAvailability) ? textureDefault : 
+                        tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
                     color={hovered ? 'grey' : 
-                        jobAvailability && !sewageMode ? 'red' :
-                        commercialAvailability && !sewageMode ? 'blue' :
+                        jobAvailability && !sewageMode ? jobAvailabilityColor :
+                        commercialAvailability && !sewageMode ? commercialAvailabilityColor :
                         tile_mappings_zones[tileMapZones[position_row][position_col]]}
                 />
             </mesh>
@@ -214,11 +258,13 @@ const Tile = ({
                 />
                 <meshStandardMaterial 
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
-                        sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
+                        sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : 
+                        !sewageMode && (jobAvailability || commercialAvailability) ? textureDefault : 
+                        tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
                     color={hovered ? 'grey' : 
-                        jobAvailability && !sewageMode ? 'red' :
-                        commercialAvailability && !sewageMode ? 'blue' :
+                        jobAvailability && !sewageMode ? jobAvailabilityColor :
+                        commercialAvailability && !sewageMode ? commercialAvailabilityColor :
                         tile_mappings_zones[tileMapZones[position_row][position_col]]}
                     side={THREE.DoubleSide}
                 />

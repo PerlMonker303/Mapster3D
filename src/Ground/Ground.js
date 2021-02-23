@@ -69,7 +69,9 @@ const Ground = ({
               decreaseElevationLevel={decreaseElevationLevel}
               elevationOrientations={state.elevationOrientations}
               jobAvailability={state.jobAvailability}
+              jobAvailabilityMap={state.jobAvailabilityMap}
               commercialAvailability={state.commercialAvailability}
+              commercialAvailabilityMap={state.commercialAvailabilityMap}
             />
           )
         }
