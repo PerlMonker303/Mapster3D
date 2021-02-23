@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import { useMediaQuery } from 'react-responsive'
 
 import icon_select from '../assets/icons/icon_select.png';
 import icon_help from '../assets/icons/icon_help.png';
@@ -62,6 +63,18 @@ const HUD = ({
     setInformation,
     cycleFinished,
     setGlobalTimeLapseMode}) => {
+
+    const isDesktopOrLaptop = useMediaQuery({
+        query: '(min-device-width: 1250px)'
+    });
+
+    const isTabletOrMobileDevice = useMediaQuery({
+        query: '(max-device-width: 1250px)'
+    });
+
+    const isPortrait = useMediaQuery({
+        query: '(max-device-width: 800px)' 
+    })
     
     const defaultTitle = information_mappings_zones_codes['default'].title;
     const defaultInformation = information_mappings_zones_codes['default'].information;
@@ -353,7 +366,7 @@ const HUD = ({
                 </section>
             </section>
 
-            <section className='HUD_top'>
+            <section className={isPortrait ? 'HUD_top_portrait' : isTabletOrMobileDevice  ? 'HUD_top_mobile' : 'HUD_top'}>
                 <section className={'HUD_top_section_prolonged'}
                     onMouseEnter={() => iconMouseEnter('funds')} 
                     onMouseLeave={() => iconMouseLeave('funds')}
