@@ -17,6 +17,7 @@ import {tree_mappings} from './Mappings/MappingNature';
 import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 
 // Version 0.2 Features TO DO
+// - mobile controls (touch)
 // - commercial (shops) and industry (jobs) needs for residential
 // - view range of commercial and industry satisfaction
 // - add parks that improve happiness
@@ -86,7 +87,9 @@ class App extends Component {
       cloudsKeysList: [],
       cloudsKeysCurrent: 0,
       cloudsSpeed: Math.abs((Math.random() * 5 - 2) / 100), // [2,5] / 100 => [0.02,0.09]
-      cloudsShow: true
+      cloudsShow: true,
+      jobAvailability: false,
+      commercialAvailability: false
     };
 
     
@@ -215,6 +218,12 @@ class App extends Component {
 
   changeSelectedOptionType = (newType) => {
     this.setState({selected_option_type: newType})
+    if(this.state.jobAvailability){
+      this.setState({jobAvailability: false});
+    }
+    if(this.state.commercialAvailability){
+      this.setState({commercialAvailability: false});
+    }
     if(newType === 'pipe'){
       this.setState({sewageMode: true});
     }else if(this.state.sewageMode === true){
@@ -302,6 +311,10 @@ class App extends Component {
     }
     if(this.state.tileMapTextures[x][y] === 12){
       // restriction of not zoning on water
+      return;
+    }
+    if(this.state.trees[[x,y]] !== undefined){
+      // restriction of not zoning on trees
       return;
     }
     if(this.state.elevationOrientations[x][y] !== 0){
@@ -1561,6 +1574,30 @@ class App extends Component {
     cloudsSpeed *= mode;
     this.setState({timeLapseMode: mode, cloudsSpeed: cloudsSpeed});
   }
+
+  changeJobAvailabilityShow = () => {
+    this.setState({selected_option_type: 'select'});
+    if(this.state.commercialAvailability){
+      this.setState({commercialAvailability: false});
+    }
+    if(this.state.sewageMode === true){
+      this.setState({jobAvailability: !this.state.jobAvailability, sewageMode: false});
+    }else{
+      this.setState({jobAvailability: !this.state.jobAvailability});
+    }
+  }
+
+  changeCommercialAvailabilityShow = () => {
+    this.setState({selected_option_type: 'select'});
+    if(this.state.jobAvailability){
+      this.setState({jobAvailability: false});
+    }
+    if(this.state.sewageMode === true){
+      this.setState({commercialAvailability: !this.state.commercialAvailability, sewageMode: false});
+    }else{
+      this.setState({commercialAvailability: !this.state.commercialAvailability});
+    }
+  }
   
   render(){
   return (
@@ -1593,6 +1630,8 @@ class App extends Component {
           setInformation={this.setInformation}
           cycleFinished={this.cycleFinished}
           setGlobalTimeLapseMode={this.setGlobalTimeLapseMode}
+          changeJobAvailabilityShow={this.changeJobAvailabilityShow}
+          changeCommercialAvailabilityShow={this.changeCommercialAvailabilityShow}
         />
 
       <div className="CanvasWrapper">

@@ -23,6 +23,8 @@ import icon_downgrade from '../assets/icons/icon_downgrade.png';
 import icon_save from '../assets/icons/icon_save.png';
 import icon_load from '../assets/icons/icon_load.png';
 import icon_new from '../assets/icons/icon_new.png';
+import icon_jobAvailability from '../assets/icons/icon_jobAvailability.png';
+import icon_commercialAvailability from '../assets/icons/icon_commercialAvailability.png';
 import icon_pause from '../assets/icons/icon_pause.png';
 import icon_play from '../assets/icons/icon_play.png';
 import icon_fast1 from '../assets/icons/icon_fast1.png';
@@ -62,7 +64,9 @@ const HUD = ({
     information,
     setInformation,
     cycleFinished,
-    setGlobalTimeLapseMode}) => {
+    setGlobalTimeLapseMode,
+    changeJobAvailabilityShow,
+    changeCommercialAvailabilityShow}) => {
 
     const isDesktopOrLaptop = useMediaQuery({
         query: '(min-device-width: 1250px)'
@@ -326,6 +330,7 @@ const HUD = ({
                         <img className='HUD_icon' src={icon_new} alt='icon_new'/>
                     </section>
                 </section>
+
 
                 <section className={errorCode ? 'HUD_footer HUD_information_error' : 'HUD_footer'}>
                     <label>

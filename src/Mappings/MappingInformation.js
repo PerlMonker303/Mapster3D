@@ -112,6 +112,14 @@ export const information_mappings_zones_codes = {
         title: 'New game',
         information: ['Start from scratch.', ' Make sure to save the current game before.']
     },
+    'jobAvailability': {
+        title: 'Job availability',
+        information: ['Job']
+    },
+    'commercialAvailability': {
+        title: 'Commercial availability',
+        information: ['Com']
+    },
     'funds':{
         title: 'Funds',
         information: ['How much money you currently own']

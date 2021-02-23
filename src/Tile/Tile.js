@@ -35,13 +35,14 @@ const Tile = ({
     selected_option_type, 
     sewageMode, 
     waterAvailability, 
-    elevationLevel, 
     elevationLevels, 
     maxElevationLevel, 
     minElevationLevel, 
     increaseElevationLevel, 
     decreaseElevationLevel,
-    elevationOrientations}) => {
+    elevationOrientations,
+    jobAvailability,
+    commercialAvailability}) => {
 
     const size = [1,1,0.01];
     const actual_position = position.map(pos => pos - 0.5);
@@ -192,7 +193,10 @@ const Tile = ({
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
                         sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
-                    color={hovered ? 'grey' : tile_mappings_zones[tileMapZones[position_row][position_col]]}
+                    color={hovered ? 'grey' : 
+                        jobAvailability && !sewageMode ? 'red' :
+                        commercialAvailability && !sewageMode ? 'blue' :
+                        tile_mappings_zones[tileMapZones[position_row][position_col]]}
                 />
             </mesh>
             : 
@@ -212,7 +216,10 @@ const Tile = ({
                     map={sewageMode && tileMapTextures[position_row][position_col] !== 12 &&  waterAvailability[position_row][position_col] === 1 ? textureDirt2 :
                         sewageMode && tileMapTextures[position_row][position_col] !== 12 ? textureDirt1 : tile_mappings_textures[tileMapTextures[position_row][position_col]]} 
                     attach='material'
-                    color={hovered ? 'grey' : tile_mappings_zones[tileMapZones[position_row][position_col]]}
+                    color={hovered ? 'grey' : 
+                        jobAvailability && !sewageMode ? 'red' :
+                        commercialAvailability && !sewageMode ? 'blue' :
+                        tile_mappings_zones[tileMapZones[position_row][position_col]]}
                     side={THREE.DoubleSide}
                 />
             </mesh>
