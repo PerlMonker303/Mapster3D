@@ -24,6 +24,7 @@ import {information_mappings_zones_codes} from './Mappings/MappingInformation';
 // - view happiness of residential areas
 
 // BUGS:
+// - hovering with downgrade tool on lvl1 building - information
 // - hovering over stuff in sewage mode - look out for that in deploy mode
 // - inverted road on cliff
 // - map size must be odd numbers

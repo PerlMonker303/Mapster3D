@@ -34,6 +34,7 @@ import {information_mappings_zones_codes} from '../Mappings/MappingInformation';
 import {tile_mappings_zones_codes, tile_mappings_zones_codes_inverted, tile_mappings_zones} from '../Mappings/MappingCodes';
 import {prices_expenses_and_revenues} from '../Mappings/MappingPrices';
 
+import HUDIcon from './HUDIcon/HUDIcon';
 
 import './HUD.scss';
 
@@ -178,172 +179,193 @@ const HUD = ({
         <div className='HUD'>
             <section className='HUD_left'>
                 <section className='HUD_section'>
-                    <section className='HUD_button' 
-                        onClick={() => changeSelectedOptionType('select')} 
-                        onMouseEnter={() => iconMouseEnter('select')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('select')}
+                        onMouseEnter={() => iconMouseEnter('select')}
                         onMouseLeave={() => iconMouseLeave('select')}
-                    >
-                        <img className='HUD_icon' src={icon_select} alt='icon_select'/>
-                    </section>
-                    <section className='HUD_button' 
-                        onClick={() => changeSelectedOptionType('help')} 
-                        onMouseEnter={() => iconMouseEnter('help')} 
+                        icon={icon_select}
+                        icon_alt='icon_select'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('help')}
+                        onMouseEnter={() => iconMouseEnter('help')}
                         onMouseLeave={() => iconMouseLeave('help')}
-                    >
-                        <img className='HUD_icon' src={icon_help} alt='icon_help'/>
-                    </section>
+                        icon={icon_help}
+                        icon_alt='icon_help'
+                    />
                 </section>
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeGridShow()}
-                        onMouseEnter={() => iconMouseEnter('grid')} 
+                    <HUDIcon 
+                        clickHandler={() => changeGridShow()}
+                        onMouseEnter={() => iconMouseEnter('grid')}
                         onMouseLeave={() => iconMouseLeave('grid')}
-                    >
-                        <img className='HUD_icon' src={icon_grid} alt='icon_grid'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeTexturesShow()}
-                        onMouseEnter={() => iconMouseEnter('textures')} 
+                        icon={icon_grid}
+                        icon_alt='icon_grid'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeTexturesShow()}
+                        onMouseEnter={() => iconMouseEnter('textures')}
                         onMouseLeave={() => iconMouseLeave('textures')}
-                    >
-                        <img className='HUD_icon' src={icon_texture} alt='icon_texture'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => {
-                        changeBuildingsShow();
-                        iconMouseEnter(!getBuildingsShow() ? 'buildings_on' : 'buildings_off')}}
-                        onMouseEnter={() => iconMouseEnter(getBuildingsShow() ? 'buildings_on' : 'buildings_off')} 
+                        icon={icon_texture}
+                        icon_alt='icon_texture'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => {
+                            changeBuildingsShow();
+                            iconMouseEnter(!getBuildingsShow() ? 'buildings_on' : 'buildings_off')}}
+                        onMouseEnter={() => iconMouseEnter(getBuildingsShow() ? 'buildings_on' : 'buildings_off')}
                         onMouseLeave={() => iconMouseLeave(getBuildingsShow() ? 'buildings_on' : 'buildings_off')}
-                    >
-                        <img className='HUD_icon' src={getBuildingsShow() ? icon_buildings_on : icon_buildings_off} alt='icon_buildings_onoff'/>
-                    </section>
+                        icon={getBuildingsShow() ? icon_buildings_on : icon_buildings_off}
+                        icon_alt='icon_buildings_onoff'
+                    />
                 </section>
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('road')}
-                        onMouseEnter={() => iconMouseEnter('road')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('road')}
+                        onMouseEnter={() => iconMouseEnter('road')}
                         onMouseLeave={() => iconMouseLeave('road')}
-                    >
-                        <img className='HUD_icon' src={icon_road} alt='icon_road'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('pipe')}
-                        onMouseEnter={() => iconMouseEnter('pipe')} 
+                        icon={icon_road}
+                        icon_alt='icon_road'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('pipe')}
+                        onMouseEnter={() => iconMouseEnter('pipe')}
                         onMouseLeave={() => iconMouseLeave('pipe')}
-                    >
-                        <img className='HUD_icon' src={icon_pipe} alt='icon_pipe'/>
-                    </section>
+                        icon={icon_pipe}
+                        icon_alt='icon_pipe'
+                    />
                 </section>
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('water')}
-                        onMouseEnter={() => iconMouseEnter('water')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('water')}
+                        onMouseEnter={() => iconMouseEnter('water')}
                         onMouseLeave={() => iconMouseLeave('water')}
-                    >
-                        <img className='HUD_icon' src={icon_water} alt='icon_water'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('shore')}
-                        onMouseEnter={() => iconMouseEnter('shore')} 
+                        icon={icon_water}
+                        icon_alt='icon_water'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('shore')}
+                        onMouseEnter={() => iconMouseEnter('shore')}
                         onMouseLeave={() => iconMouseLeave('shore')}
-                    >
-                        <img className='HUD_icon' src={icon_shore} alt='icon_shore'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeCloudsShow()}
-                        onMouseEnter={() => iconMouseEnter('cloud')} 
+                        icon={icon_shore}
+                        icon_alt='icon_shore'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeCloudsShow()}
+                        onMouseEnter={() => iconMouseEnter('cloud')}
                         onMouseLeave={() => iconMouseLeave('cloud')}
-                    >
-                        <img className='HUD_icon' src={icon_cloud} alt='icon_cloud'/>
-                    </section>
+                        icon={icon_cloud}
+                        icon_alt='icon_cloud'
+                    />
                 </section>
 
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('tree')}
-                        onMouseEnter={() => iconMouseEnter('tree')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('tree')}
+                        onMouseEnter={() => iconMouseEnter('tree')}
                         onMouseLeave={() => iconMouseLeave('tree')}
-                    >
-                        <img className='HUD_icon' src={icon_tree} alt='icon_tree'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('elevate')}
-                        onMouseEnter={() => iconMouseEnter('elevate')} 
+                        icon={icon_tree}
+                        icon_alt='icon_tree'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('elevate')}
+                        onMouseEnter={() => iconMouseEnter('elevate')}
                         onMouseLeave={() => iconMouseLeave('elevate')}
-                    >
-                        <img className='HUD_icon' src={icon_elevate} alt='icon_elevate'/>
-                    </section>
+                        icon={icon_elevate}
+                        icon_alt='icon_elevate'
+                    />
                 </section>
                 
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('residential')}
-                        onMouseEnter={() => iconMouseEnter('residential')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('residential')}
+                        onMouseEnter={() => iconMouseEnter('residential')}
                         onMouseLeave={() => iconMouseLeave('residential')}
-                    >
-                        <img className='HUD_icon' src={icon_residential} alt='icon_residential'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('commercial')}
-                        onMouseEnter={() => iconMouseEnter('commercial')} 
+                        icon={icon_residential}
+                        icon_alt='icon_residential'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('commercial')}
+                        onMouseEnter={() => iconMouseEnter('commercial')}
                         onMouseLeave={() => iconMouseLeave('commercial')}
-                    >
-                        <img className='HUD_icon' src={icon_commercial} alt='icon_commercial'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('industry')}
-                        onMouseEnter={() => iconMouseEnter('industry')} 
+                        icon={icon_commercial}
+                        icon_alt='icon_commercial'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('industry')}
+                        onMouseEnter={() => iconMouseEnter('industry')}
                         onMouseLeave={() => iconMouseLeave('industry')}
-                    >
-                        <img className='HUD_icon' src={icon_industry} alt='icon_industry'/>
-                    </section>
+                        icon={icon_industry}
+                        icon_alt='icon_industry'
+                    />
                 </section>
                 
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('upgrade')}
-                        onMouseEnter={() => iconMouseEnter('upgrade')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('upgrade')}
+                        onMouseEnter={() => iconMouseEnter('upgrade')}
                         onMouseLeave={() => iconMouseLeave('upgrade')}
-                    >
-                        <img className='HUD_icon' src={icon_upgrade} alt='icon_upgrade'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('downgrade')}
-                        onMouseEnter={() => iconMouseEnter('downgrade')} 
+                        icon={icon_upgrade}
+                        icon_alt='icon_upgrade'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('downgrade')}
+                        onMouseEnter={() => iconMouseEnter('downgrade')}
                         onMouseLeave={() => iconMouseLeave('downgrade')}
-                    >
-                        <img className='HUD_icon' src={icon_downgrade} alt='icon_downgrade'/>
-                    </section>
+                        icon={icon_downgrade}
+                        icon_alt='icon_downgrade'
+                    />
                 </section>    
 
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeSelectedOptionType('buldoze')}
-                        onMouseEnter={() => iconMouseEnter('buldoze')} 
+                    <HUDIcon 
+                        clickHandler={() => changeSelectedOptionType('buldoze')}
+                        onMouseEnter={() => iconMouseEnter('buldoze')}
                         onMouseLeave={() => iconMouseLeave('buldoze')}
-                    >
-                        <img className='HUD_icon' src={icon_buldoze} alt='icon_buldoze'/>
-                    </section>
+                        icon={icon_buldoze}
+                        icon_alt='icon_buldoze'
+                    />
                 </section>    
 
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => saveFile()}
-                        onMouseEnter={() => iconMouseEnter('save')} 
+                    <HUDIcon 
+                        clickHandler={() => saveFile()}
+                        onMouseEnter={() => iconMouseEnter('save')}
                         onMouseLeave={() => iconMouseLeave('save')}
-                    >
-                        <img className='HUD_icon' src={icon_save} alt='icon_save'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => loadFile()}
-                        onMouseEnter={() => iconMouseEnter('load')} 
+                        icon={icon_save}
+                        icon_alt='icon_save'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => loadFile()}
+                        onMouseEnter={() => iconMouseEnter('load')}
                         onMouseLeave={() => iconMouseLeave('load')}
-                    >
-                        <img className='HUD_icon' src={icon_load} alt='icon_load'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => newFile()}
-                        onMouseEnter={() => iconMouseEnter('new')} 
+                        icon={icon_load}
+                        icon_alt='icon_load'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => newFile()}
+                        onMouseEnter={() => iconMouseEnter('new')}
                         onMouseLeave={() => iconMouseLeave('new')}
-                    >
-                        <img className='HUD_icon' src={icon_new} alt='icon_new'/>
-                    </section>
+                        icon={icon_new}
+                        icon_alt='icon_new'
+                    />
                 </section>
 
                 <section className='HUD_section'>
-                    <section className='HUD_button' onClick={() => changeJobAvailabilityShow()}
-                        onMouseEnter={() => iconMouseEnter('jobAvailability')} 
+                    <HUDIcon 
+                        clickHandler={() => changeJobAvailabilityShow()}
+                        onMouseEnter={() => iconMouseEnter('jobAvailability')}
                         onMouseLeave={() => iconMouseLeave('jobAvailability')}
-                    >
-                        <img className='HUD_icon' src={icon_jobAvailability} alt='icon_jobAvailability'/>
-                    </section>
-                    <section className='HUD_button' onClick={() => changeCommercialAvailabilityShow()}
-                        onMouseEnter={() => iconMouseEnter('commercialAvailability')} 
+                        icon={icon_jobAvailability}
+                        icon_alt='icon_jobAvailability'
+                    />
+                    <HUDIcon 
+                        clickHandler={() => changeCommercialAvailabilityShow()}
+                        onMouseEnter={() => iconMouseEnter('commercialAvailability')}
                         onMouseLeave={() => iconMouseLeave('commercialAvailability')}
-                    >
-                        <img className='HUD_icon' src={icon_commercialAvailability} alt='icon_commercialAvailability'/>
-                    </section>
+                        icon={icon_commercialAvailability}
+                        icon_alt='icon_commercialAvailability'
+                    />
                 </section>
 
                 <section className={errorCode ? 'HUD_footer HUD_information_error' : 'HUD_footer'}>
